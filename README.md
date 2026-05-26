@@ -149,28 +149,6 @@ The LLM **does not**:
 
 ---
 
-## Example Workflow
-
-```text
-Brute Force Alert
-        ↓
-VirusTotal + AbuseIPDB Enrichment
-        ↓
-SSH Log Retrieval
-        ↓
-AI Log Summarization
-        ↓
-Threat Severity Assessment
-        ↓
-Incident Report Generated
-        ↓
-TheHive Case Created
-        ↓
-Slack / Discord / Email Notification
-```
-
----
-
 ## Screenshots
 
 ### Workflow Overview
