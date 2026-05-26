@@ -60,64 +60,7 @@ Instead of analysts manually pivoting between SIEM dashboards, threat intelligen
 
 ## Architecture
 
-```text
-                        ┌─────────────────────┐
-                        │   Wazuh Alerts      │
-                        │ (High Severity)     │
-                        └──────────┬──────────┘
-                                   │
-                                   ▼
-                     ┌──────────────────────────┐
-                     │ Alert Intake via Webhook │
-                     └──────────┬───────────────┘
-                                │
-                                ▼
-                  ┌──────────────────────────────┐
-                  │ Input Validation & Sanitization │
-                  └──────────┬───────────────────┘
-                              │
-                              ▼
-                    ┌────────────────────────┐
-                    │ Alert Deduplication    │
-                    └──────────┬─────────────┘
-                               │
-                               ▼
-               ┌────────────────────────────────┐
-               │ Threat Intelligence Enrichment │
-               │ VirusTotal + AbuseIPDB         │
-               └──────────┬─────────────────────┘
-                          │
-                          ▼
-                ┌────────────────────────────┐
-                │ OS Detection & Routing     │
-                └───────┬─────────┬──────────┘
-                        │         │
-          ┌─────────────┘         └──────────────┐
-          ▼                                      ▼
- ┌────────────────┐                     ┌────────────────┐
- │ Linux/macOS    │                     │ Windows Logs   │
- │ SSH Retrieval  │                     │ PowerShell     │
- └────────┬───────┘                     └────────┬───────┘
-          │                                      │
-          └────────────────┬─────────────────────┘
-                           ▼
-                ┌───────────────────────┐
-                │ AI Log Analysis       │
-                │ (Ollama Local LLM)    │
-                └──────────┬────────────┘
-                           │
-                           ▼
-                ┌───────────────────────┐
-                │ Incident Report       │
-                │ Generation            │
-                └──────────┬────────────┘
-                           │
-                           ▼
-          ┌────────────────────────────────────┐
-          │ Case Creation + Notifications      │
-          │ TheHive / Slack / Discord / Email  │
-          └────────────────────────────────────┘
-```
+![architecture](/WHAT HAPPENS.png)
 
 ---
 
