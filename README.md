@@ -60,7 +60,7 @@ Instead of analysts manually pivoting between SIEM dashboards, threat intelligen
 
 ## Architecture
 
-![architecture](/WHAT HAPPENS.png)
+![architecture](/WHATHAPPENS.png)
 
 ---
 
