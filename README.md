@@ -162,6 +162,59 @@ The LLM **does not**:
 
 ---
 
+## Real Output: What the AI Produces
+
+These are real AI-generated reports created seconds after a security alert fires.
+
+### Vulnerability Assessment Example
+
+**CVE:** CVE-2026-2781  
+**Severity:** Critical (CVSS 9.8)
+
+**Executive Summary**  
+Critical vulnerability in `libnss3` affecting Ubuntu, Firefox, and Thunderbird. The flaw enables remote exploitation through integer overflow, risking system confidentiality, integrity, and availability.
+
+**Affected Asset**
+- Host: `WIndexer-VM`
+- Package: `libnss3`
+- Version: `2:3.98-1ubuntu0.1`
+
+**Recommended Action**
+- Patch immediately:
+```bash
+sudo apt update && sudo apt upgrade libnss3
+```
+- Update Firefox/Thunderbird
+- Isolate affected endpoint if patching is delayed
+
+---
+
+### Intrusion Report Example — Shellshock Attempt
+
+**Threat Level:** HIGH (9/10)
+
+**False Positive?** No
+
+**Threat Summary**
+Shellshock exploit targeting `/cgi-bin/` through malicious HTTP payload execution. Attack attempted remote shell execution using `wget/curl`.
+
+**Threat Intelligence**
+- VirusTotal: `9/55 malicious detections`
+- AbuseIPDB: `100% confidence`
+- Combined Threat Score: `50/100`
+
+**MITRE Techniques**
+- `T1059.007` – Unix Shell
+- `T1105` – Ingress Tool Transfer
+
+**Immediate Actions**
+- Block source IP
+- Patch vulnerable CGI components
+- Review firewall/UFW rules
+- Monitor for follow-up activity
+
+---
+
 ## Use Cases
 
 - SOC Tier-1 alert automation
