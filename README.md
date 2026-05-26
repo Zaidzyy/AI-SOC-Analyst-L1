@@ -1,6 +1,6 @@
 # AI SOC Agent Pro – Autonomous Security Operations Engine
 
-> AI-powered SOC automation system for autonomous L1 triage, threat intelligence enrichment, incident reporting, and vulnerability assessment.
+> AI-powered SOC automation system for autonomous L1 triage, threat intelligence, incident reporting, and vulnerability assessment.
 
 ![Workflow](/workflow.png)
 
