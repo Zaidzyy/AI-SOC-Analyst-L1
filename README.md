@@ -176,7 +176,6 @@ The LLM **does not**:
 
 ## Future Improvements
 
-- [ ] MITRE ATT&CK confidence scoring
 - [ ] Analyst feedback loop
 - [ ] RAG-based incident memory
 - [ ] Advanced threat correlation
@@ -185,22 +184,7 @@ The LLM **does not**:
 
 ---
 
-## Repository Structure
 
-```text
-AI-SOC-Agent-Pro/
-│── README.md
-│── assets/
-│   ├── workflow-banner.png
-│   ├── workflow.png
-│   ├── incident-report.png
-│   └── vulnerability-report.png
-│── docs/
-│   ├── setup-guide.md
-│   └── architecture.md
-```
-
----
 
 ## Disclaimer
 
