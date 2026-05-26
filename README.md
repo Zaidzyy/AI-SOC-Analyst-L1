@@ -2,7 +2,7 @@
 
 > AI-powered SOC automation system for autonomous L1 triage, threat intelligence, incident reporting, and vulnerability assessment.
 
-![Workflow](/workflow.png)
+![Workflow](/Workflow.png)
 
 ## Overview
 
