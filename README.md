@@ -151,14 +151,9 @@ The LLM **does not**:
 
 ## Screenshots
 
-### Workflow Overview
-![Workflow](assets/workflow.png)
 
 ### Incident Report Example
 ![Incident Report](assets/incident-report.png)
-
-### Vulnerability Assessment Example
-![Vulnerability Report](assets/vulnerability-report.png)
 
 ---
 
