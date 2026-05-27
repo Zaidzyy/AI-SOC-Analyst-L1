@@ -2,7 +2,7 @@
 
 ## Wazuh + n8n + Ollama | 73 Nodes | Multi-OS | Multi-Intel
 
-This guide documents the full setup for the **AI SOC Analyst L1 — Pro Edition** workflow: a local, self-hosted SOC automation pipeline that receives Wazuh alerts, enriches them with threat intelligence, analyzes them with Ollama, and sends readable incident reports to Discord or other notification channels.
+This guide documents the full setup for the **AI SOC Analyst L1 ** workflow: a local, self-hosted SOC automation pipeline that receives Wazuh alerts, enriches them with threat intelligence, analyzes them with Ollama, and sends readable incident reports to Discord or other notification channels.
 
 It is written for a **Windows host + Ubuntu VM** lab, which is the setup used during testing.
 
@@ -27,22 +27,6 @@ The workflow is designed to work locally with **no cloud dependency** for the SO
 
 ---
 
-## 2. Architecture overview
-
-### High-level flow
-
-```text
-Wazuh Agent (Windows / Linux / macOS)
-→ Wazuh Manager (Ubuntu VM)
-→ Webhook Integration
-→ n8n Workflow
-→ Enrichment (VirusTotal + AbuseIPDB)
-→ Log Retrieval (SSH)
-→ Ollama Analysis
-→ Incident Report
-→ Discord / Slack / Telegram / Email
-```
-
 ### Lab layout used in this setup
 
 - **Windows host**
@@ -62,7 +46,6 @@ Wazuh Agent (Windows / Linux / macOS)
 
 ## 3. Prerequisites
 
-The original workflow documentation recommends the following baseline environment:
 
 - **Wazuh Manager** 4.x+
 - **Wazuh Agents** 4.x+
@@ -821,10 +804,5 @@ This project became much more reliable after the following real-world fixes:
 
 The result is a practical, local, AI-assisted SOC pipeline suitable for demos, lab work, and portfolio presentation.
 
----
-
-## 25. Credits and reference
-
-This guide is based on the **AI SOC Analyst L1 — Pro Edition** setup and configuration guide, which documents the workflow architecture, prerequisites, configuration node, credentials, model selection, notification channels, testing, and troubleshooting. fileciteturn20file0
 
 ---
