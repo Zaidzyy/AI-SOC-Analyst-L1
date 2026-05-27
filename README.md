@@ -153,7 +153,7 @@ The LLM **does not**:
 
 
 ### Incident Report Example
-![Incident Report](assets/incident-report.png)
+![Incident Report](/report.png)
 
 ---
 
