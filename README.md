@@ -86,69 +86,6 @@ When a **high-severity alert** is triggered:
 
 ---
 
-## Tech Stack
-
-### Security
-- Wazuh SIEM
-- VirusTotal
-- AbuseIPDB
-- TheHive
-- Threat Intelligence APIs
-
-### AI / LLM
-- Ollama
-- Mistral / Llama Models
-- AI Incident Analysis
-- Vulnerability Assessment
-
-### Automation
-- n8n
-- Event-Driven Workflows
-- Webhooks
-- Incident Orchestration
-
-### Languages & Scripting
-- JavaScript
-- Bash
-- PowerShell
-
-### Infrastructure
-- Linux
-- Windows
-- macOS
-- SSH
-
----
-
-## Security Design Principles
-
-This project follows a **deterministic-over-probabilistic security model**:
-
-### AI Assists — It Does Not Control
-The LLM provides:
-- Contextual analysis
-- Threat summaries
-- Incident reporting
-
-The LLM **does not**:
-- Execute arbitrary commands
-- Generate shell execution logic
-- Control remediation directly
-
-### Deterministic Safeguards
-- Regex input sanitization
-- Allowlisted execution paths
-- Configurable whitelisting
-- Validation before automated actions
-- Deduplication for alert suppression
-
-### Local-First Privacy
-- Runs with **local Ollama models**
-- Avoids sending sensitive logs to cloud AI providers
-- Better fit for regulated environments
-
----
-
 ## Screenshots
 
 
@@ -219,6 +156,70 @@ Shellshock exploit targeting `/cgi-bin/` through malicious HTTP payload executio
 - Alert fatigue reduction
 - Security homelab environments
 - Security engineering experimentation
+
+---
+
+## Security Design Principles
+
+This project follows a **deterministic-over-probabilistic security model**:
+
+### AI Assists — It Does Not Control
+The LLM provides:
+- Contextual analysis
+- Threat summaries
+- Incident reporting
+
+The LLM **does not**:
+- Execute arbitrary commands
+- Generate shell execution logic
+- Control remediation directly
+
+### Deterministic Safeguards
+- Regex input sanitization
+- Allowlisted execution paths
+- Configurable whitelisting
+- Validation before automated actions
+- Deduplication for alert suppression
+
+### Local-First Privacy
+- Runs with **local Ollama models**
+- Avoids sending sensitive logs to cloud AI providers
+- Better fit for regulated environments
+
+
+---
+
+## Tech Stack
+
+### Security
+- Wazuh SIEM
+- VirusTotal
+- AbuseIPDB
+- TheHive
+- Threat Intelligence APIs
+
+### AI / LLM
+- Ollama
+- Mistral / Llama Models
+- AI Incident Analysis
+- Vulnerability Assessment
+
+### Automation
+- n8n
+- Event-Driven Workflows
+- Webhooks
+- Incident Orchestration
+
+### Languages & Scripting
+- JavaScript
+- Bash
+- PowerShell
+
+### Infrastructure
+- Linux
+- Windows
+- macOS
+- SSH
 
 ---
 
