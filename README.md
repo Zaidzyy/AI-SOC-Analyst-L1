@@ -16,32 +16,32 @@ Instead of analysts manually pivoting between SIEM dashboards, threat intelligen
 
 ## Key Features
 
-### 🔍 Automated L1 Incident Triage
+### Automated L1 Incident Triage
 - Receives **high-severity alerts** from Wazuh
 - Automatically normalizes alert data
 - Deduplicates repetitive incidents to reduce alert fatigue
 - Routes incidents based on operating system and alert type
 
-### 🌍 Multi-Source Threat Intelligence Enrichment
+### Multi-Source Threat Intelligence Enrichment
 - **VirusTotal** IP reputation analysis
 - **AbuseIPDB** confidence scoring
 - Unified threat severity assessment
 - Multi-source enrichment for higher confidence triage
 
-### 🤖 AI-Powered Incident Analysis
+### AI-Powered Incident Analysis
 - Secure log retrieval from affected endpoints
 - Local **Ollama-based LLM analysis**
 - Security-focused log summarization
 - Structured incident report generation
 
-### 🛡️ Automated Response & Safeguards
+### Automated Response & Safeguards
 - Configurable IP allowlists
 - Automated IP blocking logic
 - Input sanitization and validation
 - Deterministic safeguards against unsafe execution
 - False-positive reduction mechanisms
 
-### 📂 Case Management & Notifications
+### Case Management & Notifications
 - Automatic **TheHive case creation**
 - Multi-channel alerting:
   - Discord
@@ -50,7 +50,7 @@ Instead of analysts manually pivoting between SIEM dashboards, threat intelligen
   - Telegram
 - Centralized audit logging
 
-### ⚠️ Vulnerability Triage
+### Vulnerability Triage
 - Detects vulnerability-based Wazuh alerts
 - Parses **CVSS severity**
 - Generates AI-powered vulnerability assessment reports
@@ -124,7 +124,7 @@ When a **high-severity alert** is triggered:
 
 This project follows a **deterministic-over-probabilistic security model**:
 
-### ✅ AI Assists — It Does Not Control
+### AI Assists — It Does Not Control
 The LLM provides:
 - Contextual analysis
 - Threat summaries
@@ -135,14 +135,14 @@ The LLM **does not**:
 - Generate shell execution logic
 - Control remediation directly
 
-### ✅ Deterministic Safeguards
+### Deterministic Safeguards
 - Regex input sanitization
 - Allowlisted execution paths
 - Configurable whitelisting
 - Validation before automated actions
 - Deduplication for alert suppression
 
-### ✅ Local-First Privacy
+### Local-First Privacy
 - Runs with **local Ollama models**
 - Avoids sending sensitive logs to cloud AI providers
 - Better fit for regulated environments
