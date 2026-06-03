@@ -1,4 +1,4 @@
-# AI SOC Agent – Autonomous Security Operations Engine
+# AI SOC Analyst – Autonomous Security Operations Engine
 
 > AI-powered SOC automation system for autonomous L1 triage, threat intelligence, incident reporting, and vulnerability assessment.
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-**AI SOC Agent Pro** is an **AI-powered Security Operations (SOC) automation system** designed to reduce repetitive Tier-1 analyst workload by autonomously investigating high-severity alerts, enriching threat intelligence, retrieving endpoint telemetry, generating structured incident reports, and escalating cases across security platforms.
+**AI SOC Analyst** is an **AI-powered Security Operations (SOC) automation system** designed to reduce repetitive Tier-1 analyst workload by autonomously investigating high-severity alerts, enriching threat intelligence, retrieving endpoint telemetry, generating structured incident reports, and escalating cases across security platforms.
 
 Built around **Wazuh + n8n + Ollama**, the system combines **deterministic security controls** with **local AI-powered analysis** to reduce alert fatigue while maintaining security-focused safeguards.
 
