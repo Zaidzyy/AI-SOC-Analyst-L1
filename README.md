@@ -2,7 +2,7 @@
 
 > AI-powered SOC automation system for autonomous L1 triage, threat intelligence, incident reporting, and vulnerability assessment.
 
-![Workflow](/Workflow.png)
+![Workflow](/image.png)
 
 ## Overview
 
@@ -88,6 +88,7 @@ When a **high-severity alert** is triggered:
 
 ## Screenshots
 
+![Workflow](/Workflow.png)
 
 ### Incident Report Example
 ![Incident Report](/report.png)
