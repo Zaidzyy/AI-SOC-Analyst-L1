@@ -1,6 +1,6 @@
 # AI SOC Analyst – Autonomous Security Operations Engine
 
-> AI-powered SOC automation system for autonomous L1 triage, threat intelligence, incident reporting, and vulnerability assessment.
+> I HAVEN'T POSTED THE WORKFLOW HERE FOR PRIVACY REASONS, PLS REACH OUT TO ME FOR THE WORKFLOW
 
 ![Workflow](/image.png)
 
