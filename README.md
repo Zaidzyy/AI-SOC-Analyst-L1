@@ -71,6 +71,16 @@ Analyst review             true positive confirmed by analyst  COMPLETED
 
 An analyst confirms or overrides the AI verdict in the same panel. That write-back is what feeds the false-positive rate.
 
+### The same incident, delivered
+
+![Discord incident report](screenshots/discordalert.png)
+
+This is the alert above as it lands in Discord — the same source IP, the same `90.5/100`, the same `T1110`. Written by a local model in about a minute, with the full report attached as a file so a long incident never gets truncated by a message limit.
+
+Every claim in it is traceable: the VirusTotal and AbuseIPDB figures are the looked-up values, the MITRE technique comes from the Wazuh rule rather than the model's memory, and the combined score is computed in code — the model is told what it is and forbidden from overriding it.
+
+The same report goes to Slack, Telegram and a designed HTML email in parallel, if you list them.
+
 ---
 
 ## The AI writes the report. It does not decide what happens.
@@ -106,6 +116,12 @@ The model's severity **cannot override** the computed threat score. When threat 
 Wazuh **vulnerability-detector** alerts take a separate path and produce a plain-language CVE assessment instead.
 
 ![Architecture](WHATHAPPENS.png)
+
+### A real execution
+
+![n8n execution — 90 nodes, succeeded in 47.8s](screenshots/workflowrun.png)
+
+Ninety nodes, one alert, 47.8 seconds end to end. Green edges are the path this alert actually took — the SSH branch it needed, the intel lookups it ran, the notification channels it fired. The unlit branches are the operating systems and response paths it didn't need.
 
 ---
 
