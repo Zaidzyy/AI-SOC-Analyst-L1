@@ -158,17 +158,36 @@ function stages(r){
   const dd=f("deduplicated"), it=f("threat_intel_enriched"), lg=f("logs_retrieved"),
         bk=A.find(a=>(a.action||"").startsWith("ufw_block")||(a.action||"").startsWith("block_skipped")),
         rp=f("ai_report_generated");
+  // Detail text must never contradict the state: if an action exists but carries
+  // no `detail`, describe what its result actually means rather than falling
+  // through to the "didn't happen" copy.
+  const det = (a, ok, fail, missing) =>
+    a ? (a.detail || (a.result === "success" ? ok : fail)) : missing;
+
   return [
     ["Alert ingested","ok",`Wazuh rule ${r.rule_id||"—"} · level ${r.rule_level??"—"}`],
     ["Validated & sanitized",r.source_ip?"ok":"warn",r.source_ip?`Source IP ${r.source_ip} passed validation`:"No source IP in alert"],
-    ["Deduplication",dd?"warn":"ok",dd?(dd.detail||"Repeat occurrence"):"First occurrence in window"],
-    ["Threat intelligence",it?"ok":"idle",it?.detail||`VT ${r.vt_malicious||0} malicious · AbuseIPDB ${r.abuseipdb_score||0}%`],
-    ["Endpoint log collection",lg?(lg.result==="success"?"ok":"fail"):"idle",lg?.detail||"Not attempted"],
-    ["AI analysis",rp?"ok":"idle",rp?.detail||"No report generated"],
+    ["Deduplication",dd?"warn":"ok",dd?(dd.detail||"Repeat occurrence — suppressed"):"First occurrence in window"],
+    ["Threat intelligence",it?"ok":"idle",
+      det(it, `VT ${r.vt_malicious||0} malicious · AbuseIPDB ${r.abuseipdb_score||0}%`,
+              "Enrichment failed — score may be incomplete",
+              `VT ${r.vt_malicious||0} malicious · AbuseIPDB ${r.abuseipdb_score||0}%`)],
+    ["Endpoint log collection",lg?(lg.result==="success"?"ok":"fail"):"idle",
+      det(lg, r.retrieved_logs ? `${r.retrieved_logs.length} chars retrieved` : "Logs retrieved",
+              "No usable log output returned",
+              "Not attempted")],
+    ["AI analysis",rp?"ok":"idle",
+      det(rp, r.ai_report_full ? `Report generated · ${r.ai_report_full.length} chars` : "Report generated",
+              "Report generation failed",
+              "No report generated")],
     ["Triage verdict",r.ai_verdict==="needs_review"?"warn":r.ai_verdict?"ok":"idle",
       r.ai_verdict?`${r.ai_verdict.replace("_"," ")} · ${r.ai_confidence??0}% confidence`:"No verdict"],
     ["Automated response",!bk?"idle":bk.action==="ufw_block"?(bk.result==="success"?"ok":"fail"):"skip",
-      bk?.detail||"No response action recorded"],
+      bk ? (bk.detail || (bk.action==="ufw_block"
+              ? (bk.result==="success" ? `Firewall rule written for ${r.source_ip||"source"}`
+                                       : "Block attempted but failed")
+              : "Block skipped by a safeguard"))
+         : "No response action recorded"],
     ["Analyst review",r.analyst_verdict?"ok":"idle",
       r.analyst_verdict?`${r.analyst_verdict.replace("_"," ")} confirmed by analyst`:"Awaiting human confirmation"]
   ];
