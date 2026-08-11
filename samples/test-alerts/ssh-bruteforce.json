@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-05-24T09:14:52.481+0000",
+  "rule": {
+    "level": 12,
+    "description": "sshd: Multiple authentication failures followed by a success.",
+    "id": "5720",
+    "mitre": {
+      "id": ["T1110"],
+      "tactic": ["Credential Access"],
+      "technique": ["Brute Force"]
+    },
+    "groups": ["syslog", "sshd", "authentication_failures"]
+  },
+  "agent": {
+    "id": "003",
+    "name": "n8n-VM",
+    "ip": "10.20.0.31"
+  },
+  "data": {
+    "srcip": "185.220.101.47",
+    "srcport": "51544",
+    "dstuser": "root",
+    "protocol": "ssh"
+  },
+  "predecoder": {
+    "program_name": "sshd",
+    "timestamp": "May 24 09:14:52"
+  },
+  "location": "/var/log/auth.log",
+  "full_log": "May 24 09:14:52 n8n-VM sshd[24551]: Accepted password for root from 185.220.101.47 port 51544 ssh2 (after 38 failed attempts in 40s)"
+}

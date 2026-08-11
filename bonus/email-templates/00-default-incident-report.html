@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOC Incident Report</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f1f5f9">
+<tr><td align="center" style="padding:20px 10px">
+<table role="presentation" cellpadding="0" cellspacing="0" width="680" style="width:680px;max-width:680px;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0">
+
+<!-- ===== header ===== -->
+<tr><td style="background:#0f172a;padding:20px 24px;border-radius:12px 12px 0 0">
+<table role="presentation" width="100%"><tr>
+<td style="vertical-align:middle">
+<div style="color:#ffffff;font-size:17px;font-weight:800">SOC Incident Report</div>
+<div style="color:#94a3b8;font-size:12px;margin-top:3px">{{ $('Detect OS Name').first().json.body.agent.name }} &middot; Rule {{ $('Detect OS Name').first().json.body.rule.id }} &middot; {{ $('Detect OS Name').first().json.body.timestamp }}</div>
+</td>
+<td style="vertical-align:middle;text-align:right">
+<span style="display:inline-block;background:{{ $('Combine Data For Report').first().json.threat_level === 'CRITICAL' ? '#b91c1c' : $('Combine Data For Report').first().json.threat_level === 'HIGH' ? '#ea580c' : $('Combine Data For Report').first().json.threat_level === 'MEDIUM' ? '#ca8a04' : '#15803d' }};color:#ffffff;font-size:12px;font-weight:800;padding:6px 12px;border-radius:6px;white-space:nowrap">{{ $('Combine Data For Report').first().json.threat_level }}</span>
+</td>
+</tr></table>
+</td></tr>
+
+<!-- ===== rule headline ===== -->
+<tr><td style="padding:18px 24px 0">
+<div style="font-size:15px;font-weight:700;color:#0f172a;line-height:1.4">{{ $('Detect OS Name').first().json.body.rule.description }}</div>
+<div style="font-size:12px;color:#64748b;margin-top:5px">Wazuh level {{ $('Detect OS Name').first().json.body.rule.level }} &middot; MITRE {{ [].concat($('Detect OS Name').first().json.body.rule.mitre?.technique || []).join(', ') || 'n/a' }}</div>
+</td></tr>
+
+<!-- ===== threat-intel tiles ===== -->
+<tr><td style="padding:16px 20px 0">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+<td width="25%" style="padding:4px"><div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 6px;text-align:center"><div style="font-size:20px;font-weight:800;color:#0f172a">{{ $('Combine Data For Report').first().json.virustotal_stats?.[0]?.malicious ?? 0 }}</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-top:3px">VT malicious</div></div></td>
+<td width="25%" style="padding:4px"><div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 6px;text-align:center"><div style="font-size:20px;font-weight:800;color:#0f172a">{{ $('Combine Data For Report').first().json.abuseipdb?.confidence_score ?? 0 }}%</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-top:3px">AbuseIPDB</div></div></td>
+<td width="25%" style="padding:4px"><div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 6px;text-align:center"><div style="font-size:20px;font-weight:800;color:#0f172a">{{ $('Combine Data For Report').first().json.abuseipdb?.total_reports ?? 0 }}</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-top:3px">Reports 90d</div></div></td>
+<td width="25%" style="padding:4px"><div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 6px;text-align:center"><div style="font-size:20px;font-weight:800;color:{{ $('Combine Data For Report').first().json.threat_level === 'CRITICAL' ? '#b91c1c' : $('Combine Data For Report').first().json.threat_level === 'HIGH' ? '#ea580c' : '#0f172a' }}">{{ $('Combine Data For Report').first().json.combined_threat_score ?? 0 }}</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-top:3px">Combined</div></div></td>
+</tr></table>
+</td></tr>
+
+<!-- ===== alert facts ===== -->
+<tr><td style="padding:16px 24px 0">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px">
+<tr><td style="padding:6px 0;border-bottom:1px solid #f1f5f9;color:#64748b;width:130px">Agent</td><td style="padding:6px 0;border-bottom:1px solid #f1f5f9;color:#0f172a;font-weight:600">{{ $('Detect OS Name').first().json.body.agent.name }} ({{ $('Detect OS Name').first().json.body.agent.ip }}, {{ $('Detect OS Name').first().json.body.agent.os }})</td></tr>
+<tr><td style="padding:6px 0;border-bottom:1px solid #f1f5f9;color:#64748b">Source IP</td><td style="padding:6px 0;border-bottom:1px solid #f1f5f9;color:#0f172a;font-weight:600">{{ $('Detect OS Name').first().json.body.data.srcip || 'n/a' }}</td></tr>
+<tr><td style="padding:6px 0;border-bottom:1px solid #f1f5f9;color:#64748b">Country</td><td style="padding:6px 0;border-bottom:1px solid #f1f5f9;color:#0f172a;font-weight:600">{{ $('Detect OS Name').first().json.body.GeoLocation?.country_name || 'Unknown' }}</td></tr>
+<tr><td style="padding:6px 0;color:#64748b">ISP</td><td style="padding:6px 0;color:#0f172a;font-weight:600">{{ $('Combine Data For Report').first().json.abuseipdb?.isp || 'n/a' }}</td></tr>
+</table>
+</td></tr>
+
+<!-- ===== AI report ===== -->
+<tr><td style="padding:18px 24px 0">
+<div style="font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#64748b;margin-bottom:10px">AI Incident Report</div>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;font-size:14px;color:#334155;line-height:1.6">
+<div>{{ $('AI: SOC Incident Report').item.json.output.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.+?)\*\*/g,'<strong style="color:#0f172a">$1</strong>').replace(/`([^`]+)`/g,'<code style="background:#e2e8f0;border-radius:3px;padding:1px 4px;font-size:12.5px">$1</code>').replace(/^\s*[-*•]\s+(.*)$/gm,'<li>$1</li>').replace(/<\/li>\s*<li>/g,'</li><li>').replace(/(<li>[\s\S]*?<\/li>)(?!<li>)/g,'<ul style="margin:8px 0;padding-left:20px">$1</ul>').replace(/\n{2,}/g,'</div><div style="margin-top:12px">').replace(/\n/g,'<br>') }}</div>
+</div>
+</td></tr>
+
+<!-- ===== footer ===== -->
+<tr><td style="padding:16px 24px 20px">
+<div style="border-top:1px solid #e2e8f0;padding-top:14px;font-size:11px;color:#94a3b8;line-height:1.5">
+Generated by <strong style="color:#64748b">AI SOC Analyst L1</strong> &mdash; automated tier-1 triage for Wazuh.<br>
+AI-generated analysis. Verify findings before acting on them.
+</div>
+</td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>

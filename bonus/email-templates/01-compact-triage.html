@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOC Alert</title>
+</head>
+<body style="margin:0;padding:0;background:#0b1120;font-family:Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#0b1120">
+<tr><td align="center" style="padding:14px 8px">
+<table role="presentation" cellpadding="0" cellspacing="0" width="600" style="width:600px;max-width:600px;background:#111827;border-radius:10px;border:1px solid #1f2937">
+
+<!-- ===== severity strip ===== -->
+<tr><td style="background:{{ $('Combine Data For Report').first().json.threat_level === 'CRITICAL' ? '#7f1d1d' : $('Combine Data For Report').first().json.threat_level === 'HIGH' ? '#7c2d12' : $('Combine Data For Report').first().json.threat_level === 'MEDIUM' ? '#713f12' : '#14532d' }};padding:12px 18px;border-radius:10px 10px 0 0">
+<table role="presentation" width="100%"><tr>
+<td style="color:#ffffff;font-size:14px;font-weight:800;letter-spacing:.02em">
+{{ $('Combine Data For Report').first().json.threat_level }} &middot; L{{ $('Detect OS Name').first().json.body.rule.level }} &middot; score {{ $('Combine Data For Report').first().json.combined_threat_score ?? 0 }}/100
+</td>
+<td style="text-align:right;color:#e5e7eb;font-size:11px;font-family:ui-monospace,Consolas,monospace">
+{{ $('Detect OS Name').first().json.body.timestamp }}
+</td>
+</tr></table>
+</td></tr>
+
+<!-- ===== headline ===== -->
+<tr><td style="padding:16px 18px 0">
+<div style="color:#f9fafb;font-size:15px;font-weight:700;line-height:1.4">{{ $('Detect OS Name').first().json.body.rule.description }}</div>
+</td></tr>
+
+<!-- ===== one-line facts (monospace, dense) ===== -->
+<tr><td style="padding:12px 18px 0">
+<div style="background:#0b1120;border:1px solid #1f2937;border-radius:8px;padding:12px 14px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;color:#9ca3af;line-height:1.9">
+<div><span style="color:#6b7280">host&nbsp;&nbsp;</span> <span style="color:#e5e7eb">{{ $('Detect OS Name').first().json.body.agent.name }}</span> <span style="color:#6b7280">({{ $('Detect OS Name').first().json.body.agent.ip }} &middot; {{ $('Detect OS Name').first().json.body.agent.os }})</span></div>
+<div><span style="color:#6b7280">src&nbsp;&nbsp;&nbsp;</span> <span style="color:#fca5a5">{{ $('Detect OS Name').first().json.body.data.srcip || 'n/a' }}</span> <span style="color:#6b7280">{{ $('Detect OS Name').first().json.body.GeoLocation?.country_name || '' }}</span></div>
+<div><span style="color:#6b7280">rule&nbsp;&nbsp;</span> <span style="color:#e5e7eb">{{ $('Detect OS Name').first().json.body.rule.id }}</span> <span style="color:#6b7280">{{ [].concat($('Detect OS Name').first().json.body.rule.mitre?.technique || []).join(', ') || '' }}</span></div>
+<div><span style="color:#6b7280">intel&nbsp;</span> <span style="color:#e5e7eb">VT {{ $('Combine Data For Report').first().json.virustotal_stats?.[0]?.malicious ?? 0 }} mal</span> <span style="color:#6b7280">/</span> <span style="color:#e5e7eb">AbuseIPDB {{ $('Combine Data For Report').first().json.abuseipdb?.confidence_score ?? 0 }}% ({{ $('Combine Data For Report').first().json.abuseipdb?.total_reports ?? 0 }} reports)</span></div>
+</div>
+</td></tr>
+
+<!-- ===== AI report ===== -->
+<tr><td style="padding:14px 18px 18px">
+<div style="color:#d1d5db;font-size:13.5px;line-height:1.65">
+<div>{{ $('AI: SOC Incident Report').item.json.output.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.+?)\*\*/g,'<strong style="color:#f9fafb">$1</strong>').replace(/`([^`]+)`/g,'<code style="background:#1f2937;color:#e5e7eb;border-radius:3px;padding:1px 4px;font-size:12px">$1</code>').replace(/^\s*[-*•]\s+(.*)$/gm,'<li>$1</li>').replace(/<\/li>\s*<li>/g,'</li><li>').replace(/(<li>[\s\S]*?<\/li>)(?!<li>)/g,'<ul style="margin:6px 0;padding-left:18px">$1</ul>').replace(/\n{2,}/g,'</div><div style="margin-top:10px">').replace(/\n/g,'<br>') }}</div>
+</div>
+</td></tr>
+
+<!-- ===== footer ===== -->
+<tr><td style="padding:0 18px 16px">
+<div style="border-top:1px solid #1f2937;padding-top:12px;font-size:10.5px;color:#4b5563;line-height:1.5">
+AI SOC Analyst L1 &middot; automated tier-1 triage. AI-generated analysis &mdash; verify before acting.
+</div>
+</td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>

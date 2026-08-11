@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-05-24T22:07:33.910+0000",
+  "rule": {
+    "level": 12,
+    "description": "Windows logon success from an unusual geographic location.",
+    "id": "60106",
+    "mitre": {
+      "id": ["T1078"],
+      "tactic": ["Defense Evasion", "Persistence", "Privilege Escalation", "Initial Access"],
+      "technique": ["Valid Accounts"]
+    },
+    "groups": ["windows", "windows_security", "authentication_success"]
+  },
+  "agent": {
+    "id": "011",
+    "name": "dc-corp-01",
+    "ip": "10.20.0.10"
+  },
+  "data": {
+    "srcip": "103.97.176.20",
+    "dstuser": "svc_backup",
+    "win": {
+      "eventdata": {
+        "logonType": "10",
+        "ipAddress": "103.97.176.20",
+        "targetUserName": "svc_backup"
+      }
+    }
+  },
+  "predecoder": {
+    "program_name": "WinEvtLog",
+    "timestamp": "May 24 22:07:33"
+  },
+  "location": "EventChannel",
+  "GeoLocation": {
+    "country_name": "Hong Kong",
+    "city_name": "Hong Kong"
+  },
+  "full_log": "WinEvtLog: Security: AUDIT_SUCCESS(4624): Microsoft-Windows-Security-Auditing: svc_backup: Logon Type 10 (RemoteInteractive/RDP) from 103.97.176.20 at 2026-05-24 22:07:33"
+}

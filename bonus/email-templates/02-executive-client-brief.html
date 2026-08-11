@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security Incident Brief</title>
+</head>
+<!--
+  ==========================================================================
+  EXECUTIVE / CLIENT BRIEF  -  white-label this before sending to a client.
+  Replace the two placeholders below (they appear once each, marked EDIT ME):
+     YOUR COMPANY NAME       - your MSP / SOC brand, shown in the header
+     Client Name             - the customer this report is about
+  Tip: to drive the client name from the workflow instead, add
+     CLIENT_NAME: "Acme Corp"
+  to the CONFIGURATION node and swap the literal for
+     {{ $('⚙️ CONFIGURATION').first().json.config.CLIENT_NAME }}
+  ==========================================================================
+-->
+<body style="margin:0;padding:0;background:#f6f7f9;font-family:Georgia,Cambria,Times New Roman,serif">
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f6f7f9">
+<tr><td align="center" style="padding:28px 12px">
+<table role="presentation" cellpadding="0" cellspacing="0" width="640" style="width:640px;max-width:640px;background:#ffffff;border:1px solid #e5e2dc">
+
+<!-- ===== brand bar ===== -->
+<tr><td style="padding:22px 32px 0">
+<table role="presentation" width="100%"><tr>
+<td style="font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1c1917">
+YOUR COMPANY NAME<!-- EDIT ME -->
+</td>
+<td style="text-align:right;font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:11px;color:#a8a29e;letter-spacing:.06em;text-transform:uppercase">
+Security Incident Brief
+</td>
+</tr></table>
+<div style="border-bottom:2px solid #1c1917;margin-top:12px"></div>
+</td></tr>
+
+<!-- ===== title ===== -->
+<tr><td style="padding:26px 32px 0">
+<div style="font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#a8a29e">Prepared for</div>
+<div style="font-size:21px;color:#1c1917;font-weight:normal;margin-top:4px">Client Name<!-- EDIT ME --></div>
+<div style="font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:12px;color:#78716c;margin-top:8px">
+{{ $('Detect OS Name').first().json.body.timestamp }} &middot; Asset: {{ $('Detect OS Name').first().json.body.agent.name }}
+</div>
+</td></tr>
+
+<!-- ===== verdict banner ===== -->
+<tr><td style="padding:22px 32px 0">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{{ $('Combine Data For Report').first().json.threat_level === 'CRITICAL' ? '#fef2f2' : $('Combine Data For Report').first().json.threat_level === 'HIGH' ? '#fff7ed' : $('Combine Data For Report').first().json.threat_level === 'MEDIUM' ? '#fefce8' : '#f0fdf4' }};border-left:4px solid {{ $('Combine Data For Report').first().json.threat_level === 'CRITICAL' ? '#b91c1c' : $('Combine Data For Report').first().json.threat_level === 'HIGH' ? '#ea580c' : $('Combine Data For Report').first().json.threat_level === 'MEDIUM' ? '#ca8a04' : '#15803d' }}">
+<tr><td style="padding:16px 20px">
+<div style="font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#78716c">Assessed severity</div>
+<div style="font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:19px;font-weight:800;color:{{ $('Combine Data For Report').first().json.threat_level === 'CRITICAL' ? '#7f1d1d' : $('Combine Data For Report').first().json.threat_level === 'HIGH' ? '#7c2d12' : $('Combine Data For Report').first().json.threat_level === 'MEDIUM' ? '#713f12' : '#14532d' }};margin-top:3px">
+{{ $('Combine Data For Report').first().json.threat_level }}
+</div>
+<div style="font-size:15px;color:#44403c;margin-top:8px;line-height:1.5">{{ $('Detect OS Name').first().json.body.rule.description }}</div>
+</td></tr>
+</table>
+</td></tr>
+
+<!-- ===== what we observed ===== -->
+<tr><td style="padding:26px 32px 0">
+<div style="font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a8a29e;padding-bottom:10px;border-bottom:1px solid #e5e2dc">What we observed</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:13.5px;margin-top:12px">
+<tr><td style="padding:7px 0;color:#78716c;width:170px">Affected asset</td><td style="padding:7px 0;color:#1c1917">{{ $('Detect OS Name').first().json.body.agent.name }} ({{ $('Detect OS Name').first().json.body.agent.os }})</td></tr>
+<tr><td style="padding:7px 0;color:#78716c">Originating address</td><td style="padding:7px 0;color:#1c1917">{{ $('Detect OS Name').first().json.body.data.srcip || 'Not applicable' }}</td></tr>
+<tr><td style="padding:7px 0;color:#78716c">Origin country</td><td style="padding:7px 0;color:#1c1917">{{ $('Detect OS Name').first().json.body.GeoLocation?.country_name || 'Unknown' }}</td></tr>
+<tr><td style="padding:7px 0;color:#78716c">Network operator</td><td style="padding:7px 0;color:#1c1917">{{ $('Combine Data For Report').first().json.abuseipdb?.isp || 'Unknown' }}</td></tr>
+<tr><td style="padding:7px 0;color:#78716c">Reputation</td><td style="padding:7px 0;color:#1c1917">Flagged by {{ $('Combine Data For Report').first().json.virustotal_stats?.[0]?.malicious ?? 0 }} threat-intelligence engines; {{ $('Combine Data For Report').first().json.abuseipdb?.total_reports ?? 0 }} independent abuse reports in the last 90 days</td></tr>
+<tr><td style="padding:7px 0;color:#78716c">Technique</td><td style="padding:7px 0;color:#1c1917">{{ [].concat($('Detect OS Name').first().json.body.rule.mitre?.technique || []).join(', ') || 'Not classified' }}</td></tr>
+</table>
+</td></tr>
+
+<!-- ===== analyst assessment ===== -->
+<tr><td style="padding:26px 32px 0">
+<div style="font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a8a29e;padding-bottom:10px;border-bottom:1px solid #e5e2dc">Analyst assessment</div>
+<div style="font-size:14.5px;color:#292524;line-height:1.7;margin-top:14px">
+<div>{{ $('AI: SOC Incident Report').item.json.output.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.+?)\*\*/g,'<strong style="color:#1c1917">$1</strong>').replace(/`([^`]+)`/g,'<code style="font-family:ui-monospace,Consolas,monospace;background:#f5f5f4;border-radius:3px;padding:1px 4px;font-size:13px">$1</code>').replace(/^\s*[-*•]\s+(.*)$/gm,'<li style="margin-bottom:6px">$1</li>').replace(/<\/li>\s*<li/g,'</li><li').replace(/(<li[\s\S]*?<\/li>)(?!<li)/g,'<ul style="margin:10px 0;padding-left:22px">$1</ul>').replace(/\n{2,}/g,'</div><div style="margin-top:14px">').replace(/\n/g,'<br>') }}</div>
+</div>
+</td></tr>
+
+<!-- ===== footer ===== -->
+<tr><td style="padding:30px 32px 26px">
+<div style="border-top:1px solid #e5e2dc;padding-top:16px;font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:11px;color:#a8a29e;line-height:1.6">
+This brief was produced by automated tier-1 triage and reviewed against multiple
+threat-intelligence sources. Findings are machine-generated and should be
+confirmed by an analyst before remediation action is taken.
+<br><br>
+<span style="color:#78716c">YOUR COMPANY NAME</span> &middot; Security Operations
+</div>
+</td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>

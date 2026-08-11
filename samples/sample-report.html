@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI SOC Analyst L1 — Sample Output</title>
+<style>
+  :root{
+    --bg:#f1f5f9; --card:#ffffff; --ink:#0f172a; --ink2:#334155; --muted:#64748b;
+    --line:#e2e8f0; --soft:#f8fafc; --red:#b91c1c; --amber:#ea580c; --blue:#1d4ed8;
+    --green:#15803d; --tint:#f0f9ff; --tintline:#bae6fd;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:24px 12px;background:var(--bg);color:var(--ink2);
+       font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55}
+  .wrap{max-width:760px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+
+  .banner{background:#fffbeb;border:1px solid #fcd34d;color:#78350f;border-radius:10px;
+          padding:10px 14px;font-size:13px;margin-bottom:16px}
+  .banner b{color:#78350f}
+
+  .head{background:var(--ink);padding:18px 24px;display:flex;flex-wrap:wrap;gap:12px;
+        align-items:center;justify-content:space-between}
+  .head h1{margin:0;color:#fff;font-size:17px;font-weight:800;letter-spacing:-.01em}
+  .head .sub{color:#94a3b8;font-size:12px;margin-top:3px}
+  .pill{display:inline-block;background:var(--red);color:#fff;font-size:12px;font-weight:800;
+        padding:6px 12px;border-radius:6px;white-space:nowrap}
+
+  .sec{padding:20px 24px;border-top:1px solid var(--line)}
+  .sec:first-of-type{border-top:0}
+  .sec h2{margin:0 0 12px;font-size:11px;font-weight:800;letter-spacing:.09em;
+          text-transform:uppercase;color:var(--muted)}
+
+  table.kv{width:100%;border-collapse:collapse;font-size:13px}
+  table.kv td{padding:6px 0;vertical-align:top;border-bottom:1px solid var(--soft)}
+  table.kv td:first-child{color:var(--muted);width:150px;white-space:nowrap;padding-right:14px}
+  table.kv td:last-child{color:var(--ink);font-weight:600}
+  code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12.5px;
+       background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+
+  .intel{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .tile{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px}
+  .tile .n{font-size:22px;font-weight:800;color:var(--ink);line-height:1.1}
+  .tile .l{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+  .tile.crit .n{color:var(--red)}
+
+  .report{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+  .report h3{margin:18px 0 6px;font-size:12px;font-weight:800;letter-spacing:.06em;
+             text-transform:uppercase;color:var(--ink)}
+  .report h3:first-child{margin-top:0}
+  .report p{margin:0 0 10px;font-size:14px}
+  .report ul{margin:0 0 10px;padding-left:20px;font-size:14px}
+  .report li{margin-bottom:5px}
+  .verdict{font-size:16px;font-weight:800;color:var(--red);margin:0 0 14px}
+
+  .chan{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--tint);
+        border:1px solid var(--tintline);color:#075985;border-radius:999px;
+        padding:5px 12px;font-size:12.5px;font-weight:600}
+  .chip.off{background:var(--soft);border-color:var(--line);color:var(--muted);font-weight:500}
+
+  .steps{list-style:none;margin:0;padding:0;font-size:13.5px}
+  .steps li{padding:7px 0;border-bottom:1px solid var(--soft);display:flex;gap:10px;align-items:flex-start}
+  .steps li:last-child{border-bottom:0}
+  .mark{flex:0 0 auto;font-weight:800;width:16px}
+  .ok{color:var(--green)} .no{color:var(--muted)}
+
+  .note{background:var(--tint);border:1px solid var(--tintline);border-radius:8px;
+        padding:12px 14px;font-size:13px;color:#075985}
+
+  .foot{text-align:center;color:var(--muted);font-size:12px;padding:18px 12px 4px}
+  .foot a{color:var(--blue);text-decoration:none}
+  @media (max-width:520px){
+    .head{flex-direction:column;align-items:flex-start}
+    table.kv td:first-child{width:110px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <b>Sample output.</b> This is an illustrative example of what AI SOC Analyst L1 produces,
+    generated from the bundled test alert <code>samples/test-alerts/ssh-bruteforce.json</code>.
+    It is not a record of a real incident. Your reports will vary with your model, your hosts and your thresholds.
+  </div>
+
+  <div class="card">
+
+    <div class="head">
+      <div>
+        <h1>SOC Incident Report</h1>
+        <div class="sub">n8n-VM &middot; Wazuh rule 5720 &middot; 2026-05-24 09:14:52 UTC</div>
+      </div>
+      <span class="pill">THREAT LEVEL: HIGH</span>
+    </div>
+
+    <div class="sec">
+      <h2>The alert that came in</h2>
+      <table class="kv">
+        <tr><td>Agent</td><td>n8n-VM <span style="color:#64748b;font-weight:400">(10.20.0.31, Linux)</span></td></tr>
+        <tr><td>Rule</td><td>5720 &middot; level 12 &middot; sshd: Multiple authentication failures followed by a success</td></tr>
+        <tr><td>Source IP</td><td>185.220.101.47</td></tr>
+        <tr><td>Target user</td><td>root</td></tr>
+        <tr><td>MITRE</td><td>T1110 &middot; Credential Access &middot; Brute Force</td></tr>
+      </table>
+    </div>
+
+    <div class="sec">
+      <h2>Threat intelligence</h2>
+      <div class="intel">
+        <div class="tile"><div class="n">7</div><div class="l">VT malicious</div></div>
+        <div class="tile"><div class="n">100%</div><div class="l">AbuseIPDB confidence</div></div>
+        <div class="tile"><div class="n">1,247</div><div class="l">Abuse reports / 90d</div></div>
+        <div class="tile crit"><div class="n">85</div><div class="l">Combined score</div></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>What was delivered</h2>
+      <div class="report">
+
+        <p class="verdict">🔴 THREAT LEVEL: HIGH</p>
+
+        <h3>False positive?</h3>
+        <p>No — 38 failed password attempts in 40 seconds followed by an accepted password is not a user mistyping.</p>
+
+        <h3>Threat summary</h3>
+        <p>Successful SSH brute force against the <code>root</code> account on n8n-VM from 185.220.101.47,
+        a known Tor exit relay. 38 failures in 40 seconds, then an accepted password at 09:14:52 UTC.
+        The attacker now holds valid root credentials on this host. Severity 8/10.</p>
+
+        <h3>Multi-source intel</h3>
+        <ul>
+          <li><b>VirusTotal:</b> 7 engines flag the address as malicious, 2 as suspicious.</li>
+          <li><b>AbuseIPDB:</b> 100% abuse confidence, 1,247 reports in 90 days. Usage type
+              "Data Center/Web Hosting/Transit"; ISP is a Tor relay operator.</li>
+          <li><b>Combined:</b> 85/100. Both sources agree independently — this is not a reputation artefact.</li>
+        </ul>
+
+        <h3>Key findings</h3>
+        <ul>
+          <li>185.220.101.47 is anonymising infrastructure. No legitimate administrative access should originate here.</li>
+          <li>Password authentication succeeded for <code>root</code> directly — root SSH login and password
+              auth are both enabled on this host.</li>
+          <li>MITRE T1110 (Brute Force). Follow-on T1078 (Valid Accounts) is now likely.</li>
+          <li>The host log pull confirms the burst pattern and shows no earlier successful login from this address.</li>
+        </ul>
+
+        <h3>Immediate actions</h3>
+        <ul>
+          <li>Treat n8n-VM as compromised. Isolate it and hunt for persistence:
+              <code>authorized_keys</code>, cron, systemd units, new local users.</li>
+          <li>Rotate the root password and every credential stored on or reachable from this host.</li>
+          <li>Block 185.220.101.47 at the perimeter and kill any active session from it.</li>
+          <li>Sweep auth logs on every other host for the same source and pattern.</li>
+        </ul>
+
+        <h3>Recommendations</h3>
+        <ul>
+          <li>Set <code>PermitRootLogin no</code> and disable password authentication in <code>sshd_config</code>; move to key-only access.</li>
+          <li>Deploy fail2ban or equivalent rate limiting, and put SSH behind a VPN or bastion.</li>
+        </ul>
+
+        <h3>Conclusion</h3>
+        <p>Confirmed successful credential-access attack from anonymising infrastructure against a privileged
+        account. Escalate to incident response now.</p>
+
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Delivered to</h2>
+      <div class="chan">
+        <span class="chip">✓ Discord <span style="font-weight:400">— report as .txt</span></span>
+        <span class="chip">✓ Slack</span>
+        <span class="chip">✓ Telegram</span>
+        <span class="chip off">Email — not in channel list</span>
+      </div>
+      <p style="font-size:12.5px;color:#64748b;margin:12px 0 0">
+        All enabled channels are delivered in parallel. This example ran with
+        <code>NOTIFICATION_CHANNELS: "discord,slack,telegram"</code>.
+      </p>
+    </div>
+
+    <div class="sec">
+      <h2>What the workflow did</h2>
+      <ul class="steps">
+        <li><span class="mark ok">✓</span><span>Sanitised the alert — source IP validated as IPv4, shell metacharacters stripped before any SSH command was built.</span></li>
+        <li><span class="mark ok">✓</span><span>Passed deduplication — first occurrence of this IP + rule + agent within the 15-minute window.</span></li>
+        <li><span class="mark ok">✓</span><span>Detected OS as Linux and pulled <code>/var/log/auth.log</code> from n8n-VM over SSH.</span></li>
+        <li><span class="mark ok">✓</span><span>Enriched 185.220.101.47 with VirusTotal and AbuseIPDB → combined score 85/100.</span></li>
+        <li><span class="mark ok">✓</span><span>Ran two AI passes locally on Ollama — log parse, then incident report.</span></li>
+        <li><span class="mark no">—</span><span><b>No automatic block applied.</b> Rule level 12 is below the <code>AUTO_BLOCK_MIN_LEVEL: 14</code> floor, so the IP was reported but not firewalled.</span></li>
+      </ul>
+      <div class="note" style="margin-top:14px">
+        That last line is the safety design, not a failure. Blocking requires the rule level, the
+        VirusTotal thresholds, the whitelist check and the master toggle to <em>all</em> agree —
+        so a level-12 alert produces a report for a human, and a level-14 alert produces a report
+        and a <code>ufw deny</code>.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    AI SOC Analyst L1 — by <a href="https://neetrox.com">NeetroX</a><br>
+    Production SOC &amp; MSP automations.
+  </div>
+
+</div>
+</body>
+</html>
