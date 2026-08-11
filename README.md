@@ -48,22 +48,6 @@ That last step is what turns the false-positive rate into a measurement instead 
 
 ---
 
-## Five bugs that were invisible until I fired real alerts
-
-Static review found ten problems. Running the pipeline against real alerts found five more — and **every one of those five failed silently.** Wrong numbers or a missing report, never a crash. The workflow reported success the entire time.
-
-| What was wrong | Why it was invisible | Before → after |
-|---|---|---|
-| **Threat score ignored VirusTotal entirely** | Both intel nodes fed the same input, so only one ever arrived. VT contributed **zero** to every score the system had ever produced. | `40.5 MEDIUM` → `90.5 CRITICAL` |
-| **The correct score was computed, then discarded** | The scoring node executed twice; the consumer took whichever result landed first. | `0 / LOW` → `50 / HIGH` |
-| **Reports failed on every Windows and macOS alert** | The report prompt referenced a Linux-only node 12 times. Multi-OS support was real for log *collection*, never for report *generation*. | `node not executed` → full report |
-| **Sanitization was decorative** | Validated values were computed and then never used — the raw alert field reached the shell instead. | injectable → **5/5 blocked** |
-| **The model invented the attack type** | It called a crypto-miner detection and a Windows valid-account logon both "SSH brute force", with fabricated MITRE IDs (`T1208` isn't a real technique). | `T1208 ✗` → `T1078 ✓` |
-
-The full audit trail — all 15 fixes, what each broke, and how it was verified — is in [`CHANGELOG.md`](CHANGELOG.md).
-
----
-
 ## The dashboard
 
 ![Dashboard](screenshots/dashboard.jpg)
@@ -122,6 +106,22 @@ The model's severity **cannot override** the computed threat score. When threat 
 Wazuh **vulnerability-detector** alerts take a separate path and produce a plain-language CVE assessment instead.
 
 ![Architecture](WHATHAPPENS.png)
+
+---
+
+## Five bugs that were invisible until I fired real alerts
+
+Static review found ten problems. Running the pipeline against real alerts found five more — and **every one of those five failed silently.** Wrong numbers or a missing report, never a crash. The workflow reported success the entire time.
+
+| What was wrong | Why it was invisible | Before → after |
+|---|---|---|
+| **Threat score ignored VirusTotal entirely** | Both intel nodes fed the same input, so only one ever arrived. VT contributed **zero** to every score the system had ever produced. | `40.5 MEDIUM` → `90.5 CRITICAL` |
+| **The correct score was computed, then discarded** | The scoring node executed twice; the consumer took whichever result landed first. | `0 / LOW` → `50 / HIGH` |
+| **Reports failed on every Windows and macOS alert** | The report prompt referenced a Linux-only node 12 times. Multi-OS support was real for log *collection*, never for report *generation*. | `node not executed` → full report |
+| **Sanitization was decorative** | Validated values were computed and then never used — the raw alert field reached the shell instead. | injectable → **5/5 blocked** |
+| **The model invented the attack type** | It called a crypto-miner detection and a Windows valid-account logon both "SSH brute force", with fabricated MITRE IDs (`T1208` isn't a real technique). | `T1208 ✗` → `T1078 ✓` |
+
+The full audit trail — all 15 fixes, what each broke, and how it was verified — is in [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
