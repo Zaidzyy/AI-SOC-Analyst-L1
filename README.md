@@ -53,8 +53,6 @@ That last step is what turns the false-positive rate into a measurement instead 
 
 ![Dashboard](screenshots/dashboard.jpg)
 
-Live at **[/dashboard.html](https://zaidzyy.github.io/AI-SOC-Analyst-L1/dashboard.html)**. Reads Postgres directly; no server.
-
 Six KPIs including **false-positive rate** and **mean time to triage** — both computed from analyst verdicts, so they measure the system rather than describe it.
 
 ### Every incident carries its own pipeline trace
