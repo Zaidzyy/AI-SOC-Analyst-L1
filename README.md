@@ -1,6 +1,6 @@
 <h1 align="center">AI SOC Analyst – Autonomous Security Operations Engine</h1>
 <p align="center">
-<a href="https://zaidzyy.github.io/AIPCC/"><b>zaidzyy.github.io/AIPCC</b></a>
+<a href="https://zaidzyy.github.io/AI-SOC-Analyst-L1/"><b>zaidzyy.github.io/AI-SOC-Analyst-L1/</b></a>
 </p>
 
 > I HAVEN'T POSTED THE WORKFLOW HERE FOR PRIVACY REASONS, PLS REACH OUT TO ME FOR THE WORKFLOW
