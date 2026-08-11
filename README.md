@@ -12,7 +12,7 @@
 
 ---
 
-![Landing page](screenshots/landing.jpg)
+![Landing page](screenshots/image.png)
 
 ## Why this exists
 
