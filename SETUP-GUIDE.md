@@ -76,11 +76,102 @@ Attach these in the n8n UI (**Credentials**), then select them on the matching n
 | **Discord Webhook** | `Discord`, `Discord1`, `🚨 Error to Discord` | only if Discord is in your channel list |
 | **SMTP** | `📧 Email Alert` | only if you send email over SMTP (see §10a) |
 | **Gmail OAuth2** | `📧 Gmail Alert` | only if you send email via Gmail instead of SMTP (see §10a) |
+| **HTTP Header Auth** (webhook) | `🔔 Alert Webhook - Level 12+` | **required** — see §4a |
 | (optional) TheHive Header Auth, Google Sheets OAuth | optional nodes | only if enabled |
 
 > The imported workflow arrives with credential *slots* referencing the packaging environment's names. n8n will show them as unresolved until you select your own on each node.
 
 > Tip: if all your hosts share one SSH key/user, create a single SSH credential and select it on every SSH node.
+
+---
+
+### 4a. ⚠️ Webhook authentication — do not skip this
+
+The webhook is **authenticated**. An unauthenticated SOC webhook is a remote trigger for privileged actions: anyone who learns the URL can POST a fabricated Wazuh alert, and the workflow will SSH into your hosts and — if blocking is enabled — write a firewall rule against an IP of their choosing.
+
+The same secret has to exist in **two** places. If they don't match, every alert is rejected and the workflow looks broken.
+
+**1 — Generate a token**
+
+```bash
+openssl rand -hex 32
+```
+
+```powershell
+# Windows / PowerShell
+-join (1..64 | % { '0123456789abcdef'[(Get-Random -Max 16)] })
+```
+
+**2 — Create the credential in n8n**
+
+**Credentials → Add credential → Header Auth**
+
+| Field | Value |
+|---|---|
+| **Name** (this is the HTTP *header name*, not a label) | `X-SOC-Token` |
+| **Value** | your token |
+
+Save it as something obvious like `SOC Webhook Token`.
+
+> The most common mistake here: the **Name** field is the header name sent on the request. It is not a display label.
+
+**3 — Attach it to the webhook node**
+
+Open `🔔 Alert Webhook - Level 12+` → **Authentication: Header Auth** → select your credential.
+
+**4 — Send the same header from Wazuh**
+
+Wazuh's `<integration>` block cannot set custom headers, so alerts are posted by a small integration script. On the Wazuh **Manager**:
+
+```bash
+sudo nano /var/ossec/integrations/custom-n8n
+```
+
+```python
+#!/usr/bin/env python3
+import sys, json, requests
+
+with open(sys.argv[1]) as f:
+    alert = json.load(f)
+
+requests.post(
+    "https://YOUR-N8N/webhook/reportlvl12",
+    json=alert,
+    headers={
+        "Content-Type": "application/json",
+        "X-SOC-Token": "PASTE_THE_SAME_TOKEN_HERE",
+    },
+    timeout=10,
+)
+```
+
+```bash
+sudo chmod 750 /var/ossec/integrations/custom-n8n
+sudo chown root:wazuh /var/ossec/integrations/custom-n8n
+sudo apt install python3-requests -y      # not pip — avoids externally-managed-environment
+sudo systemctl restart wazuh-manager
+```
+
+The script name **must** match the `<name>` in `ossec.conf` (§7), or Wazuh logs `File not found inside 'integrations'`.
+
+**5 — Verify before going further**
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+  https://YOUR-N8N/webhook/reportlvl12 \
+  -H "Content-Type: application/json" \
+  -H "X-SOC-Token: YOUR_TOKEN" \
+  -d '{"test":"ping"}'
+```
+
+| Code | Meaning |
+|---|---|
+| `200` | reachable and the token is accepted |
+| `401` / `403` | reachable but **the token doesn't match** — n8n credential ≠ script header |
+| `404` | workflow not active, or wrong webhook path |
+| timeout | firewall or wrong host — n8n is not reachable from the Wazuh box |
+
+Run it once **with** the header and once **without**. The version without it must fail. If an unauthenticated POST succeeds, the credential isn't attached to the node.
 
 ---
 
@@ -146,8 +237,10 @@ Models are **left to you** — set them where you like. The relevant nodes:
 
 ## 7. Point Wazuh at the webhook
 
+> **Do §4a first.** The webhook requires an auth header. Without it Wazuh's alerts are rejected and nothing in this section will appear to work.
+
 1. Copy the **Production URL** from the `🔔 Alert Webhook - Level 12+` node (path `/reportlvl12`).
-2. On the Wazuh **Manager**, add an integration that POSTs level ≥ 12 alerts as JSON. Example `ossec.conf`:
+2. On the Wazuh **Manager**, register the integration script from §4a. The `<name>` **must** match the filename in `/var/ossec/integrations/`:
 
 ```xml
 <integration>
@@ -158,7 +251,11 @@ Models are **left to you** — set them where you like. The relevant nodes:
 </integration>
 ```
 
+Keep the block inside the main `<ossec_config>` block.
+
 3. Restart `wazuh-manager`.
+
+> **Do not use `localhost`** if Wazuh and n8n are on different machines. Use the address of the n8n host as reachable *from the Wazuh box*.
 
 The workflow accepts both a raw alert body and a `{ "full_alert": {…} }` wrapper.
 
@@ -175,8 +272,25 @@ Send a sample alert:
 ```bash
 curl -X POST https://YOUR-N8N/webhook/reportlvl12 \
   -H "Content-Type: application/json" \
+  -H "X-SOC-Token: YOUR_TOKEN" \
   --data @"samples/test-alerts/ssh-bruteforce.json"
 ```
+
+> The `X-SOC-Token` header is required (§4a). Omit it and you get `401` before any node runs.
+
+**Or use the demo runner**, which fires all three sample alerts with the right header, waits between them, and prints the status code for each:
+
+```powershell
+$env:SOC_TOKEN = "your-token"
+.\samples\fire-alerts.ps1
+```
+
+```bash
+export SOC_TOKEN="your-token"
+./samples/fire-alerts.sh
+```
+
+See [`samples/README.md`](samples/README.md).
 
 Confirm an AI incident report reaches **every** channel listed in `NOTIFICATION_CHANNELS`. The threat-intel section will be populated from real VirusTotal/AbuseIPDB lookups on the sample's source IP.
 
@@ -283,6 +397,11 @@ Wazuh **vulnerability-detector** alerts take a separate path: `Switch` (Vulnerab
 
 | Symptom | Fix |
 |---|---|
+| **No alerts arriving at all** | **Check the auth header first (§4a).** The n8n credential value and the token in `/var/ossec/integrations/custom-n8n` must match exactly. A mismatch rejects every alert. |
+| `401` / `403` from the webhook | Token mismatch, or the Header Auth credential isn't attached to the webhook node. |
+| `404` from the webhook | Workflow not active, or the path doesn't match `/reportlvl12`. |
+| Wazuh logs `File not found inside 'integrations'` | The `<name>` in `ossec.conf` doesn't match the script filename in `/var/ossec/integrations/`. |
+| Curl works but Wazuh alerts never arrive | The integration script isn't executable, isn't owned `root:wazuh`, or `python3-requests` isn't installed. Check `/var/ossec/logs/ossec.log`. |
 | No logs in the report | Agent name doesn't match a `Route to VM by Agent` rule (see §3a), or the SSH node has no/incorrect credential, or SSH can't reach the host. |
 | Windows/macOS report empty | OpenSSH Server not enabled on the host, or the SSH credential on `Execute a command` / `Execute a command1` points at the wrong machine. |
 | Only one channel receives the report | `NOTIFICATION_CHANNELS` still holds a single value — it takes a comma-separated **list** (§10). |
