@@ -6,7 +6,7 @@
 
 [**Live site**](https://zaidzyy.github.io/AI-SOC-Analyst-L1/) · [**Live dashboard**](https://zaidzyy.github.io/AI-SOC-Analyst-L1/dashboard.html)
 
-`Wazuh` · `n8n` · `Ollama` · `Postgres` — 90 nodes, local inference, nothing leaves the network
+`Wazuh` · `n8n` · `Ollama` · `Postgres` · `Supabase` — 90 nodes, local inference, nothing leaves the network
 
 </div>
 
