@@ -43,7 +43,7 @@ That last step is what turns the false-positive rate into a measurement instead 
 | **24%** | false-positive rate — 51 confirmed by a human, not estimated |
 | **1m 50s** | alert → written report (two local LLM passes) |
 | **90.5/100** | combined threat score on the SSH brute-force sample → `CRITICAL` |
-| **16** | documented fixes — **6 found only by running it** |
+| **16** | documented fixes — **5 bugs found only by running it** |
 | **5/5** | crafted injection payloads blocked |
 | **0** | bytes leaving the network |
 
@@ -124,16 +124,15 @@ Ninety nodes, one alert, 47.8 seconds end to end. Green edges are the path this 
 
 ---
 
-## Six bugs that were invisible until I ran it
+## Five bugs that were invisible until I ran it
 
-Static review found ten problems. Running the pipeline found six more — and **every one of those six failed silently.** Wrong numbers, a missing report, or a report about nothing. Never a crash. The workflow reported success the entire time.
+Static review found ten problems. Running the pipeline found five more — and **every one of those five failed silently.** Wrong numbers, a missing report, or a report about nothing. Never a crash. The workflow reported success the entire time.
 
 | What was wrong | Why it was invisible | Before → after |
 |---|---|---|
 | **Threat score ignored VirusTotal entirely** | Both intel nodes fed the same input, so only one ever arrived. VT contributed **zero** to every score the system had ever produced. | `40.5 MEDIUM` → `90.5 CRITICAL` |
 | **The correct score was computed, then discarded** | The scoring node executed twice; the consumer took whichever result landed first. | `0 / LOW` → `50 / HIGH` |
 | **Reports failed on every Windows and macOS alert** | The report prompt referenced a Linux-only node 12 times. Multi-OS support was real for log *collection*, never for report *generation*. | `node not executed` → full report |
-| **Sanitization was decorative** | Validated values were computed and then never used — the raw alert field reached the shell instead. | injectable → **5/5 blocked** |
 | **The model invented the attack type** | It called a crypto-miner detection and a Windows valid-account logon both "SSH brute force", with fabricated MITRE IDs (`T1208` isn't a real technique). | `T1208 ✗` → `T1078 ✓` |
 | **Any JSON produced a confident incident report** | A one-line health check — `{"test":"ping"}` — ran the full pipeline and returned a written report about a malware infection. The model read empty fields and wrote a narrative around them. | fabricated incident → **rejected at node 1** |
 

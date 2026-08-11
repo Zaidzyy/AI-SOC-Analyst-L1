@@ -2,7 +2,7 @@
 
 Every defect found while hardening this workflow, what it broke, and how the fix was verified.
 
-**Ten were found by reading the workflow. Six were found only by running it** — and every one of those six failed *silently*. Wrong numbers, a missing report, or a report about nothing. Never a crash. The pipeline reported success the entire time.
+**Ten were found by reading the workflow. Five bugs were found only by running it** — and every one of those five failed *silently*. Wrong numbers, a missing report, or a report about nothing. Never a crash. The pipeline reported success the entire time.
 
 One entry is a **retraction**: a "fix" I diagnosed wrongly and would have broken working code. It's kept in, because a changelog that only lists successes isn't a changelog.
 
@@ -78,7 +78,7 @@ Deduplication registered an alert *before* the pipeline ran. If the run then fai
 
 ## Found only by running it
 
-These five were invisible to static review.
+Five bugs invisible to static review, plus one addition (15) that only became obvious once real reports existed.
 
 ### 11 · The threat score excluded VirusTotal entirely
 Both threat-intel nodes connect to the *same input* of the scoring node, so the node only ever saw one of them. **VirusTotal contributed zero to every score the system had ever produced.**
@@ -193,7 +193,7 @@ The end-to-end pipeline was then validated on real hardware: alert → authentic
 
 ## The lesson
 
-The six most serious defects were all **silent**. Nothing crashed. The workflow reported success while producing a threat score that ignored half its intelligence sources, no report at all on two of three operating systems, an AI verdict describing an attack that never happened — and, when handed a health-check ping, a complete incident report about a threat that did not exist.
+The five most serious defects were all **silent**. Nothing crashed. The workflow reported success while producing a threat score that ignored half its intelligence sources, no report at all on two of three operating systems, an AI verdict describing an attack that never happened — and, when handed a health-check ping, a complete incident report about a threat that did not exist.
 
 That last one is the one worth sitting with. The pipeline did not fail on empty input. It filled the gap.
 
