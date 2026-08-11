@@ -12,7 +12,7 @@
 
 ---
 
-![Landing page](screenshots/image.png)
+![Workflow](screenshots/image.png)
 
 ## Why this exists
 
