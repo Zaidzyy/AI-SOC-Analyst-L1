@@ -1,0 +1,21 @@
+﻿# ── workflow stays private (deliberate) ──
+*.json
+!package.json
+
+# ── secrets ──
+*.local.*
+CREDENTIALS*
+.env
+.env.*
+*.env
+*.key
+*.pem
+
+# ── internal docs ──
+RUNBOOK.md
+
+# ── junk ──
+node_modules/
+Thumbs.db
+desktop.ini
+.DS_Store

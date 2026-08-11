@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI SOC Analyst L1 — Every alert investigated before you open the console.</title>
+<meta name="description" content="Wazuh alerts validated, deduplicated, enriched against two threat-intel sources, investigated over SSH and written up by a local LLM — with a human confirming every verdict. 15 documented fixes, 5 found only by running it.">
+<meta property="og:title" content="AI SOC Analyst L1 — Autonomous tier-one operations">
+<meta property="og:description" content="A local-first SOC pipeline that triages Wazuh alerts end to end. Nothing leaves the network.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/b1-poster.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#050607;--p:#0a0d11;--ln:#1b2229;--ln2:#252d36;--st:#46566a;--s3:#8b98a5;--s2:#b9c3cc;--ink:#e6edf3;
+  --crit:#e5484d;--high:#f76b15;--med:#f5d90a;--low:#46a758;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden}
+.mono{font-family:var(--mono)}
+::selection{background:var(--st);color:#fff}
+
+
+/* ---------- TOP NAV ---------- */
+#nav{position:fixed;top:0;left:0;right:0;z-index:45;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 30px;background:linear-gradient(180deg,rgba(5,6,7,.9),rgba(5,6,7,0));pointer-events:none}
+#nav>*{pointer-events:auto}
+.brand{display:flex;align-items:center;gap:9px;font-size:11px;font-weight:800;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--s2);text-decoration:none}
+.brand svg{width:17px;height:17px;flex-shrink:0}
+.brand:hover{color:#fff}
+.navr{display:flex;align-items:center;gap:8px}
+.navlink{font-size:11px;font-weight:700;color:var(--s3);text-decoration:none;padding:7px 12px;border-radius:8px;transition:.18s}
+.navlink:hover{color:#fff;background:rgba(226,232,240,.07)}
+.navgh{font-size:11px;font-weight:700;color:var(--s2);text-decoration:none;padding:7px 13px;border-radius:8px;
+  border:1px solid var(--ln2);background:rgba(10,13,17,.7);transition:.18s;display:flex;align-items:center;gap:7px}
+.navgh:hover{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.navgh svg{width:14px;height:14px}
+@media(max-width:700px){#nav{padding:12px 18px}.navlink{display:none}}
+.ch:first-of-type .in{padding-top:26px}
+
+/* ---------- SHELL ---------- */
+#chapno{position:fixed;left:18px;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;
+  font-size:9px;letter-spacing:.3em;color:var(--st);z-index:40;font-weight:800;text-transform:uppercase;
+  transition:opacity .4s}
+#rail{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:9px}
+#rail button{width:2px;height:20px;background:var(--ln2);border:none;border-radius:2px;padding:0;cursor:pointer;transition:.35s}
+#rail button.on{background:var(--ink);height:32px}
+#rail button:hover{background:var(--s3)}
+.hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);font-size:8.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--st);z-index:40;animation:fl 2.2s infinite;pointer-events:none;transition:opacity .4s}
+@keyframes fl{0%,100%{opacity:.35;transform:translate(-50%,0)}50%{opacity:1;transform:translate(-50%,5px)}}
+.hint.gone{opacity:0}
+
+#track{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth}
+#track::-webkit-scrollbar{display:none}
+#track{-ms-overflow-style:none;scrollbar-width:none}
+.ch{min-height:100vh;scroll-snap-align:start;position:relative;display:grid;place-items:center;
+  padding:64px 76px;overflow:hidden}
+@media(max-width:820px){.ch{padding:56px 26px}#chapno{display:none}#rail{right:9px}}
+
+.bgv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.34}
+.bgl{position:absolute;inset:0;opacity:.42}
+.b-terr{background:radial-gradient(75% 55% at 18% 100%,#232a31,transparent 62%),radial-gradient(62% 48% at 74% 100%,#181d23,transparent 64%),radial-gradient(120% 90% at 50% 0%,#0b1015,#050607)}
+.b-wave{background:repeating-linear-gradient(0deg,transparent 0 22px,rgba(139,152,165,.10) 22px 23px),radial-gradient(100% 80% at 50% 50%,#0c1116,#050607)}
+.b-star{background:radial-gradient(1.4px 1.4px at 20% 30%,#8b98a5,transparent),radial-gradient(1.2px 1.2px at 65% 22%,#b9c3cc,transparent),radial-gradient(1.6px 1.6px at 42% 68%,#6b7a8d,transparent),radial-gradient(1.2px 1.2px at 82% 55%,#8b98a5,transparent),radial-gradient(90% 70% at 50% 40%,#0d1319,#050607)}
+.b-glob{background:radial-gradient(40% 40% at 50% 50%,rgba(139,152,165,.14),transparent 70%),repeating-radial-gradient(circle at 50% 50%,transparent 0 26px,rgba(139,152,165,.07) 26px 27px),radial-gradient(100% 80% at 50% 50%,#0b1015,#050607)}
+.b-wall{background:linear-gradient(90deg,#050607 0 44%,rgba(226,232,240,.16) 49% 51%,#050607 56% 100%),radial-gradient(100% 80% at 50% 50%,#0b1015,#050607)}
+.vig{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 50%,transparent 36%,rgba(5,6,7,.88))}
+
+.in{position:relative;width:100%;max-width:900px}
+/* JS adds .anim to <body>; without it everything is simply visible. */
+body.anim .in{opacity:0;transform:translateY(24px);
+  transition:opacity .8s cubic-bezier(.2,.7,.3,1),transform .8s cubic-bezier(.2,.7,.3,1)}
+body.anim .ch.show .in{opacity:1;transform:none}
+
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:9.5px;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--s2);border:1px solid var(--ln2);background:rgba(226,232,240,.05);
+  padding:5px 12px;border-radius:999px;margin-bottom:18px}
+.dl{width:5px;height:5px;border-radius:50%;background:var(--low);animation:bl 1.7s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+h2.big{font-size:clamp(32px,5.4vw,54px);line-height:1.02;font-weight:870;letter-spacing:-.035em;max-width:15ch;margin-bottom:16px}
+h2.big em{font-style:normal;color:var(--st)}
+h3{font-size:clamp(22px,3.2vw,33px);line-height:1.12;font-weight:850;letter-spacing:-.028em;max-width:22ch;margin-bottom:12px}
+p.l{font-size:clamp(12.5px,1.35vw,14.5px);line-height:1.72;color:var(--s3);max-width:60ch;margin-bottom:24px}
+p.l b{color:var(--s2);font-weight:600}
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+.b1,.b2{padding:11px 20px;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer;
+  font-family:var(--sans);text-decoration:none;display:inline-block;transition:.2s}
+.b1{background:var(--ink);color:var(--bg);border:1px solid var(--ink)}
+.b1:hover{opacity:.88}
+.b2{background:transparent;color:var(--s2);border:1px solid var(--ln2);font-weight:700}
+.b2:hover{background:var(--p);color:#fff}
+.kpi{display:flex;gap:34px;margin-top:30px;flex-wrap:wrap}
+.kv{font-size:clamp(24px,3.4vw,32px);font-weight:870;letter-spacing:-.03em;line-height:1}
+.kl{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--s3);margin-top:7px;font-weight:700}
+
+.sr{display:flex;align-items:center;gap:13px;padding:10px 14px;border:1px solid var(--ln);border-radius:9px;
+  background:rgba(10,13,17,.74);margin-bottom:7px}
+body.anim .sr{opacity:0;transform:translateX(-16px);transition:opacity .55s,transform .55s}
+body.anim .ch.show .sr{opacity:1;transform:none}
+.sn{font-size:9.5px;font-weight:800;color:var(--st);width:16px;flex-shrink:0}
+.st2{font-size:12.5px;font-weight:750;width:106px;flex-shrink:0}
+.sd{font-size:11px;color:#6b7a8d;flex:1;min-width:0}
+.sk{font-size:8.5px;font-weight:800;padding:2.5px 7px;border-radius:4px;flex-shrink:0}
+@media(max-width:640px){.st2{width:auto}.sd{display:none}}
+
+.bug{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:12px 14px;
+  border:1px solid var(--ln);border-radius:10px;background:rgba(10,13,17,.74);margin-bottom:7px;
+}
+body.anim .bug{opacity:0;transform:translateY(12px);transition:opacity .55s,transform .55s}
+body.anim .ch.show .bug{opacity:1;transform:none}
+.bt{font-size:12.5px;font-weight:720;margin-bottom:3px}
+.bd{font-size:11px;color:#6b7a8d;line-height:1.45}
+.ba{font-size:10.5px;white-space:nowrap;font-family:var(--mono)}
+@media(max-width:640px){.bug{grid-template-columns:1fr}.ba{text-align:left}}
+
+.gate4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 20px}
+@media(max-width:760px){.gate4{grid-template-columns:1fr 1fr}}
+.g4{border:1px solid var(--ln2);border-radius:9px;padding:11px 12px;background:rgba(10,13,17,.74);
+}
+body.anim .g4{opacity:0;transform:translateY(10px);transition:opacity .55s,transform .55s}
+body.anim .ch.show .g4{opacity:1;transform:none}
+.g4 b{display:block;font-size:11.5px;font-weight:750;margin-bottom:3px}
+.g4 span{font-size:10.5px;color:#6b7a8d;line-height:1.45;display:block}
+
+.feed{border:1px solid var(--ln2);border-radius:11px;overflow:hidden;background:rgba(10,13,17,.88);
+}
+body.anim .feed{opacity:0;transform:translateY(12px);transition:opacity .65s .25s,transform .65s .25s}
+body.anim .ch.show .feed{opacity:1;transform:none}
+.fh{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-bottom:1px solid var(--ln);
+  font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--s3)}
+.fr{display:grid;grid-template-columns:64px 1fr 82px 38px;gap:12px;padding:9px 13px;border-bottom:1px solid var(--ln);
+  font-size:11px;align-items:center;font-family:var(--mono)}
+.fr:last-child{border:none}
+.fr.new{animation:pr 2.3s ease-out 1}
+@keyframes pr{0%{background:rgba(226,232,240,.13)}100%{background:transparent}}
+.chip{font-size:8.5px;font-weight:800;padding:2.5px 7px;border-radius:4px;text-align:center}
+@media(max-width:560px){.fr{grid-template-columns:1fr 74px 36px}.fr>:first-child{display:none}}
+
+</style>
+</head>
+<body>
+<script>document.body.className="js anim";</script>
+
+<nav id="nav">
+  <a class="brand" href="#" onclick="go(0);return false">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <circle cx="60" cy="60" r="48" fill="none" stroke="#46566a" stroke-width="5"/>
+      <circle cx="60" cy="60" r="26" fill="none" stroke="#46566a" stroke-width="4"/>
+      <circle cx="60" cy="60" r="11" fill="#e2e8f0"/>
+    </svg>
+    AI SOC Analyst
+  </a>
+  <div class="navr">
+    <a class="navlink" href="#" onclick="go(1);return false">pipeline</a>
+    <a class="navlink" href="#" onclick="go(2);return false">evidence</a>
+    <a class="navlink" href="dashboard.html">dashboard</a>
+    <a class="navgh" href="https://github.com/Zaidzyy/AI-SOC-Analyst-L1" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      GitHub
+    </a>
+  </div>
+</nav>
+<div id="chapno">chapter 01 — the problem</div>
+<div id="rail"></div>
+<div class="hint" id="hint">scroll</div>
+
+<main id="track">
+
+  <!-- 01 -->
+  <section class="ch show" data-n="chapter 01 — the problem">
+    <video class="bgv" autoplay muted loop playsinline preload="metadata" poster="assets/b1-poster.jpg" onerror="this.style.display='none'">
+      <source src="assets/b1.webm" type="video/webm"><source src="assets/b1.mp4" type="video/mp4">
+    </video>
+    <div class="bgl b-terr"></div><div class="vig"></div>
+    <div class="in">
+      <span class="eyebrow"><span class="dl"></span>autonomous tier-one operations</span>
+      <h2 class="big">Alerts don't wait <em>for morning.</em></h2>
+      <p class="l">A level-12 Wazuh alert at 2 a.m. needs the same six things every time: look up the IP, SSH in, tail the logs, decide if it's real, write it up, tell someone. <b>That loop is the whole job of this system.</b></p>
+      <div class="cta">
+        <a class="b1" href="dashboard.html">Open the dashboard →</a>
+        <a class="b2" href="#ev" onclick="go(2);return false">See what it found ↓</a>
+        <a class="b2" href="https://github.com/Zaidzyy/AI-SOC-Analyst-L1" target="_blank" rel="noopener">View on GitHub ↗</a>
+      </div>
+      <div class="kpi">
+        <div><div class="kv" data-count="72">0</div><div class="kl">incidents triaged</div></div>
+        <div><div class="kv">1m50s</div><div class="kl">alert → written report</div></div>
+        <div><div class="kv" data-count="24" data-suffix="%">0</div><div class="kl">false-positive rate</div></div>
+        <div><div class="kv">0</div><div class="kl">bytes leaving the network</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="ch" data-n="chapter 02 — the pipeline">
+    <div class="bgl b-wave"></div><div class="vig"></div>
+    <div class="in">
+      <span class="eyebrow">02 // the pipeline</span>
+      <h3>Nine stages. The failures are recorded too.</h3>
+      <div id="stages"></div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="ch" id="ev" data-n="chapter 03 — the evidence">
+    <div class="bgl b-star"></div><div class="vig"></div>
+    <div class="in">
+      <span class="eyebrow">03 // measured, not claimed</span>
+      <h3>Five bugs were invisible until I fired real alerts.</h3>
+      <p class="l">Every one failed <b>silently</b> — wrong numbers or a missing report, never a crash. The pipeline reported success throughout.</p>
+      <div id="bugs"></div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="ch" data-n="chapter 04 — safeguards">
+    <div class="bgl b-glob"></div><div class="vig"></div>
+    <div class="in">
+      <span class="eyebrow">04 // safeguards</span>
+      <h3>The AI writes the report. It does not decide what happens.</h3>
+      <p class="l">Blocking is deterministic and gated four ways. <b>All four must agree</b> before a single firewall rule is written.</p>
+      <div class="gate4">
+        <div class="g4" style="transition-delay:.05s"><b>Master switch</b><span>Off by default. One flag disables all blocking.</span></div>
+        <div class="g4" style="transition-delay:.11s"><b>CIDR allowlist</b><span>RFC1918 + resolvers preloaded. IPv4 and IPv6.</span></div>
+        <div class="g4" style="transition-delay:.17s"><b>Rule-level floor</b><span>Level 12–13 reported, never blocked.</span></div>
+        <div class="g4" style="transition-delay:.23s"><b>Intel threshold</b><span>Detection count must clear a set bar.</span></div>
+      </div>
+      <div class="feed">
+        <div class="fh"><span>live incident feed</span>
+          <span style="display:flex;align-items:center;gap:7px;color:var(--s2)" id="conn">
+            <span class="dl" style="background:var(--s2)"></span><span id="connt">connecting…</span></span></div>
+        <div id="rows"></div>
+      </div>
+      <p class="l" style="margin:14px 0 0;font-size:11.5px">A row highlights on arrival, then stops. It is <b>not</b> animated through the pipeline — by the time the row exists the workflow finished about two minutes ago, and pretending otherwise would be theatre.</p>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="ch" data-n="chapter 05 — local first">
+    <div class="bgl b-wall"></div><div class="vig"></div>
+    <div class="in" style="text-align:center;max-width:680px;margin:0 auto">
+      <span class="eyebrow">05 // local first</span>
+      <h3 style="max-width:none;margin-inline:auto">Nothing leaves your network.</h3>
+      <p class="l" style="margin-inline:auto">Inference runs on a local Ollama model. Alert contents, log excerpts and hostnames never reach a cloud provider. The only outbound calls are the two threat-intel lookups you explicitly enable — and when either is unavailable the record reads <b>unknown</b>, never clean.</p>
+      <div class="cta" style="justify-content:center">
+        <a class="b1" href="dashboard.html">Open the dashboard →</a>
+        <a class="b2" href="https://github.com/Zaidzyy/AI-SOC-Analyst-L1" target="_blank" rel="noopener">View on GitHub ↗</a>
+      </div>
+      <p class="mono" style="font-size:9.5px;color:#46566a;margin-top:28px">90 nodes · llama3.1:8b · local inference · 15 fixes documented · built by Zaid</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ============================================================
+   PUBLIC CONFIG — safe to commit.
+   The publishable key is designed to be exposed in a browser;
+   row-level security is what protects the data, not this key.
+   NEVER put the sb_secret_ key in this file.
+   ============================================================ */
+window.SOC_CONFIG = {
+  SUPABASE_URL: "https://duamzbcqnaxpdlxoquoc.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_QCCdOsTZbXsswSVgWBTmjA_owp2OOU3",
+  GITHUB_URL: "https://github.com/Zaidzyy/AI-SOC-Analyst-L1"
+};
+
+</script>
+<script>
+/* AI SOC Analyst L1 — landing page behaviour */
+(function () {
+  "use strict";
+  try {
+  const cfg = window.SOC_CONFIG || {};
+
+  /* ---------------- chapter nav ---------------- */
+  const track = document.getElementById("track");
+  const chs = [...document.querySelectorAll(".ch")];
+  const rail = document.getElementById("rail");
+  const chapno = document.getElementById("chapno");
+  const hint = document.getElementById("hint");
+
+  rail.innerHTML = chs.map((c, i) =>
+    `<button data-i="${i}" class="${i === 0 ? "on" : ""}" aria-label="Go to ${c.dataset.n}"></button>`).join("");
+  rail.querySelectorAll("button").forEach(b =>
+    b.addEventListener("click", () => chs[+b.dataset.i].scrollIntoView()));
+  window.go = i => chs[i] && chs[i].scrollIntoView();
+
+  // If IntersectionObserver is unavailable or throws, every chapter is simply
+  // shown at once — the page degrades to a plain scroll instead of breaking.
+  try {
+    if (typeof IntersectionObserver === "function") {
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) return;
+          e.target.classList.add("show");
+          const i = chs.indexOf(e.target);
+          chapno.textContent = e.target.dataset.n;
+          rail.querySelectorAll("button").forEach((b, j) => b.classList.toggle("on", j === i));
+          hint.classList.toggle("gone", i > 0);
+        });
+      }, { root: track, threshold: 0.5 });
+      chs.forEach(c => io.observe(c));
+    } else {
+      chs.forEach(c => c.classList.add("show"));
+    }
+  } catch (err) {
+    console.warn("[soc] observer unavailable:", err.message);
+    chs.forEach(c => c.classList.add("show"));
+  }
+
+  /* ---------------- count-up stats ---------------- */
+  let counted = false;
+  function countUp() {
+    if (counted) return; counted = true;
+    document.querySelectorAll("[data-count]").forEach(el => {
+      const target = +el.dataset.count, suffix = el.dataset.suffix || "";
+      let v = 0; const step = Math.max(1, Math.round(target / 34));
+      const t = setInterval(() => {
+        v += step;
+        if (v >= target) { v = target; clearInterval(t); }
+        el.textContent = v + suffix;
+      }, 26);
+    });
+  }
+
+  /* ---------------- chapter 02 · pipeline stages ---------------- */
+  const STAGES = [
+    ["Validate",    "ok",   "IPs checked, shell metacharacters stripped, log paths allowlisted"],
+    ["Deduplicate", "ok",   "200 brute-force attempts collapse into one report"],
+    ["Enrich",      "ok",   "VirusTotal + AbuseIPDB merged into one 0–100 score"],
+    ["Collect",     "fail", "SSH handshake timed out — the run continues by design"],
+    ["Analyse",     "ok",   "Two local Ollama passes: parse the logs, then write the report"],
+    ["Decide",      "ok",   "true_positive · 90% confidence · T1110"],
+    ["Respond",     "skip", "Skipped — source matched the 192.168.0.0/16 allowlist"],
+    ["Notify",      "ok",   "Discord, Slack, Telegram and HTML email — in parallel"],
+    ["Confirm",     "wait", "Awaiting a human verdict"]
+  ];
+  const SK = { ok:["#46a758","ok"], fail:["#e5484d","failed"], skip:["#8b98a5","skipped"], wait:["#f5d90a","pending"] };
+  document.getElementById("stages").innerHTML = STAGES.map(([n, s, d], i) => {
+    const [c, l] = SK[s];
+    return `<div class="sr" style="transition-delay:${0.05 + i * 0.06}s">
+      <span class="sn">${String(i + 1).padStart(2, "0")}</span>
+      <span class="st2">${n}</span><span class="sd">${d}</span>
+      <span class="sk" style="background:${c}22;color:${c}">${l}</span></div>`;
+  }).join("");
+
+  /* ---------------- chapter 03 · defect log ---------------- */
+  const BUGS = [
+    ["Threat score ignored VirusTotal entirely", "Both intel nodes fed one input; only one ever arrived", "40.5 MED", "90.5 CRIT"],
+    ["Correct score computed, then discarded",   "The scoring node ran twice; the consumer took the wrong one", "0 LOW", "50 HIGH"],
+    ["Reports failed on Windows and macOS",      "The report referenced a Linux-only node twelve times", "no report", "full report"],
+    ["Sanitization was decorative",              "Validated values were computed, then never used", "injectable", "5/5 blocked"],
+    ["The AI invented the attack type",          "Called a crypto-miner “SSH brute force”, faked MITRE IDs", "T1208 ✗", "T1078 ✓"]
+  ];
+  document.getElementById("bugs").innerHTML = BUGS.map(([t, d, was, now], i) =>
+    `<div class="bug" style="transition-delay:${0.06 + i * 0.07}s">
+      <div><div class="bt">${t}</div><div class="bd">${d}</div></div>
+      <div class="ba"><span style="color:#e5484d">${was}</span> → <span style="color:#46a758">${now}</span></div>
+    </div>`).join("");
+
+  /* ---------------- chapter 04 · live feed ---------------- */
+  const SEV = { CRITICAL:"#e5484d", HIGH:"#f76b15", MEDIUM:"#f5d90a", LOW:"#46a758", UNKNOWN:"#46566a" };
+  const rows = document.getElementById("rows");
+  const connt = document.getElementById("connt");
+
+  function hhmm(iso) {
+    const d = new Date(iso);
+    return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`;
+  }
+  function render(inc, isNew) {
+    const lv = inc.threat_level || "UNKNOWN", c = SEV[lv] || SEV.UNKNOWN;
+    return `<div class="fr ${isNew ? "new" : ""}">
+      <span style="color:#5b6b7a">${hhmm(inc.created_at)}</span>
+      <span>${inc.source_ip || "—"}</span>
+      <span class="chip" style="background:${c}22;color:${c}">${lv}</span>
+      <span style="color:${c};font-weight:800;text-align:right">${Math.round(inc.combined_threat_score || 0)}</span>
+    </div>`;
+  }
+  function push(inc, isNew) {
+    rows.insertAdjacentHTML("afterbegin", render(inc, isNew));
+    while (rows.children.length > 6) rows.removeChild(rows.lastChild);
+  }
+
+  const configured = cfg.SUPABASE_ANON_KEY && !cfg.SUPABASE_ANON_KEY.startsWith("PASTE_");
+
+  async function boot() {
+    if (!configured) { fallback("demo data — add your key in config.js"); return; }
+    try {
+      const r = await fetch(
+        `${cfg.SUPABASE_URL}/rest/v1/incidents?select=created_at,source_ip,threat_level,combined_threat_score&order=created_at.desc&limit=6`,
+        { headers: { apikey: cfg.SUPABASE_ANON_KEY, Authorization: `Bearer ${cfg.SUPABASE_ANON_KEY}` } });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const data = await r.json();
+      rows.innerHTML = data.map(d => render(d, false)).join("");
+      connt.textContent = "connected";
+      poll(data[0] && data[0].created_at);
+    } catch (e) {
+      console.warn("[soc] live feed unavailable:", e.message);
+      fallback("offline — showing sample");
+    }
+  }
+
+  /* Poll rather than websocket: static host, no build step, and a 12s
+     interval is plenty for a feed that updates every few minutes. */
+  function poll(lastSeen) {
+    setInterval(async () => {
+      try {
+        const q = lastSeen ? `&created_at=gt.${encodeURIComponent(lastSeen)}` : "";
+        const r = await fetch(
+          `${cfg.SUPABASE_URL}/rest/v1/incidents?select=created_at,source_ip,threat_level,combined_threat_score&order=created_at.desc&limit=3${q}`,
+          { headers: { apikey: cfg.SUPABASE_ANON_KEY, Authorization: `Bearer ${cfg.SUPABASE_ANON_KEY}` } });
+        if (!r.ok) return;
+        const data = await r.json();
+        data.reverse().forEach(d => { push(d, true); lastSeen = d.created_at; });
+      } catch (e) { /* stay quiet; the feed is decorative here */ }
+    }, 12000);
+  }
+
+  function fallback(label) {
+    connt.textContent = label;
+    const IPS = ["185.220.101.47","45.95.147.236","103.97.176.20","23.129.64.130","91.240.118.172"];
+    const seed = [["CRITICAL",91],["HIGH",60],["LOW",0],["CRITICAL",100]];
+    rows.innerHTML = seed.map(([lv, sc], i) => render({
+      created_at: new Date(Date.now() - (i + 1) * 9e5).toISOString(),
+      source_ip: IPS[i], threat_level: lv, combined_threat_score: sc }, false)).join("");
+    setInterval(() => {
+      const lv = ["CRITICAL","HIGH","MEDIUM","LOW"][Math.floor(Math.random() * 4)];
+      const sc = { CRITICAL: 90 + Math.random() * 10, HIGH: 50 + Math.random() * 20,
+                   MEDIUM: 30 + Math.random() * 19, LOW: Math.random() * 29 }[lv];
+      push({ created_at: new Date().toISOString(), source_ip: IPS[Math.floor(Math.random() * 5)],
+             threat_level: lv, combined_threat_score: sc }, true);
+    }, 6000);
+  }
+
+  countUp();
+  boot();
+  } catch (err) {
+    console.error("[soc] init failed:", err);
+    document.querySelectorAll(".ch").forEach(c => c.classList.add("show"));
+    document.body.classList.remove("anim");
+  }
+})();
+
+</script>
+</body>
+</html>
