@@ -1,4 +1,4 @@
-<h1 align="center"># AI SOC Analyst – Autonomous Security Operations Engine</h1>
+<h1 align="center">AI SOC Analyst – Autonomous Security Operations Engine</h1>
 
 > I HAVEN'T POSTED THE WORKFLOW HERE FOR PRIVACY REASONS, PLS REACH OUT TO ME FOR THE WORKFLOW
 
