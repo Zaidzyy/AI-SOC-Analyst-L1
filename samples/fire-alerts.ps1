@@ -1,5 +1,5 @@
 <#
-    AI SOC Analyst L1 — demo runner (Windows / PowerShell)
+    AI SOC Analyst L1 - demo runner (Windows / PowerShell)
 
     Fires the sample Wazuh alerts at your webhook and pauses between them so
     each run finishes before the next arrives.
@@ -45,7 +45,7 @@ if (-not $Token) {
 }
 
 $src = Join-Path $PSScriptRoot "test-alerts"
-$enc = New-Object System.Text.UTF8Encoding $false   # no BOM — n8n rejects a BOM'd body
+$enc = New-Object System.Text.UTF8Encoding $false   # no BOM - n8n rejects a BOM'd body
 
 function Fire {
     param([string]$File, [string]$Label, [string]$Expect)
@@ -71,8 +71,8 @@ function Fire {
 
     switch ($code) {
         "200" { Write-Host "    200 accepted" -ForegroundColor Green }
-        "401" { Write-Host "    401 token mismatch — n8n credential vs SOC_TOKEN (SETUP-GUIDE 4a)" -ForegroundColor Red; return }
-        "403" { Write-Host "    403 token mismatch — n8n credential vs SOC_TOKEN (SETUP-GUIDE 4a)" -ForegroundColor Red; return }
+        "401" { Write-Host "    401 token mismatch - n8n credential vs SOC_TOKEN (SETUP-GUIDE 4a)" -ForegroundColor Red; return }
+        "403" { Write-Host "    403 token mismatch - n8n credential vs SOC_TOKEN (SETUP-GUIDE 4a)" -ForegroundColor Red; return }
         "404" { Write-Host "    404 workflow inactive, or wrong webhook path" -ForegroundColor Red; return }
         default { Write-Host "    $code unexpected" -ForegroundColor Yellow }
     }
@@ -80,15 +80,15 @@ function Fire {
     Start-Sleep -Seconds $Wait
 }
 
-Write-Host "AI SOC Analyst L1 — firing sample alerts at $Url"
-Write-Host "waiting ${Wait}s between alerts so each run completes"
+Write-Host "AI SOC Analyst L1 - firing sample alerts at $Url"
+Write-Host ("waiting " + $Wait + "s between alerts so each run completes")
 
-Fire "ssh-bruteforce.json"    "LINUX — SSH brute force"          "CRITICAL, auto-block path, T1110"
-Fire "malware-detection.json" "LINUX — crypto-miner file"        "NOT brute force — Resource Hijacking, T1496"
-Fire "suspicious-login.json"  "WINDOWS — valid-account logon"    "T1078, exercises the Windows branch"
+Fire "ssh-bruteforce.json"    "LINUX - SSH brute force"          "CRITICAL, auto-block path, T1110"
+Fire "malware-detection.json" "LINUX - crypto-miner file"        "NOT brute force - Resource Hijacking, T1496"
+Fire "suspicious-login.json"  "WINDOWS - valid-account logon"    "T1078, exercises the Windows branch"
 
 Write-Host ""
 Write-Host "Done. Check:" -ForegroundColor Green
 Write-Host "  - your notification channel for three reports"
-Write-Host "  - n8n Executions — anything under ~200ms was deduplicated, not run"
+Write-Host "  - n8n Executions - anything under 200ms was deduplicated, not run"
 Write-Host "  - the dashboard, if Supabase is wired up"

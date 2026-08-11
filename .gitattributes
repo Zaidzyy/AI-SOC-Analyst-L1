@@ -1,0 +1,5 @@
+# PowerShell 5.1 reads .ps1 as ANSI unless the file has a BOM. Keep these
+# files ASCII-only and CRLF so a non-ASCII character can never be re-decoded
+# into a smart quote that silently breaks string parsing.
+*.ps1 text eol=crlf working-tree-encoding=US-ASCII
+*.sh  text eol=lf
