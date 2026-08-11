@@ -102,4 +102,9 @@ The runner appends a random suffix to each agent name, so repeated runs are neve
 
 The runner prints the status code for each alert, so you get the answer immediately rather than waiting for a report that was never going to come.
 
+> A `200` means the **header** was accepted. The webhook only processes Wazuh alert
+> JSON — anything without `rule.id`, `rule.level` and `agent.name` is rejected at the
+> first node, visible in **n8n → Executions**. These three samples are real alert
+> shapes, so they pass; a hand-rolled `{"test":"ping"}` will not.
+
 Full walkthrough in [`SETUP-GUIDE.md`](../SETUP-GUIDE.md) §4a.

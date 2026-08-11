@@ -1,8 +1,8 @@
-# Changelog — the 15 fixes
+# Changelog — the 16 fixes
 
 Every defect found while hardening this workflow, what it broke, and how the fix was verified.
 
-**Ten were found by reading the workflow. Five were found only by firing real alerts at it** — and every one of those five failed *silently*. Wrong numbers or a missing report, never a crash. The pipeline reported success the entire time.
+**Ten were found by reading the workflow. Six were found only by running it** — and every one of those six failed *silently*. Wrong numbers, a missing report, or a report about nothing. Never a crash. The pipeline reported success the entire time.
 
 One entry is a **retraction**: a "fix" I diagnosed wrongly and would have broken working code. It's kept in, because a changelog that only lists successes isn't a changelog.
 
@@ -119,6 +119,36 @@ This is what turns "the AI summarises" into "the AI decides, and a human confirm
 
 ---
 
+### 16 · Any JSON produced a confident incident report
+
+The webhook accepted **any** body. A one-line health-check payload — `{"test":"ping"}` —
+ran the full pipeline and produced a complete incident report:
+
+```
+THREAT TYPE:
+The Wazuh rule detected an unknown OS, which may indicate a malware
+infection or other security threat.
+
+Agent Name: [unknown]    OS: unknown
+Rule ID:    [unknown]    Source IP: none
+```
+
+Nothing was detected. "Unknown OS" was the OS-classifier finding no data, and the
+model turned that absence into a malware narrative and recommended a full scan.
+
+Two problems in one: an authenticated-but-malformed POST could **manufacture fake
+incidents**, and the model treated missing data as evidence rather than as missing.
+
+**Fixed:** both normalization nodes verify the payload carries `rule.id`, `rule.level`
+and `agent.name` before anything else runs. Anything else is rejected at the first
+node with a message naming what was missing and what keys arrived.
+
+Verified: ping payload, empty body and arbitrary JSON all rejected; both real Wazuh
+formats (raw alert and `full_alert` wrapper) still accepted.
+
+Found the same way as 11–14 — by firing something real at it. In this case the
+"something real" was a health check.
+
 ## Retracted
 
 ### 2 · ~~VirusTotal array indexing~~ — wrong diagnosis, not applied
@@ -147,12 +177,24 @@ Every JavaScript node was syntax-checked, then the sanitization chain was **exec
 
 **5/5 blocked.** All three sample alerts still route correctly and produce full reports.
 
+The payload guard (16) was verified the same way — by execution, not review:
+
+| Payload | Result |
+|---|---|
+| `{"test":"ping"}` | rejected — missing `rule.id`, `rule.level`, `agent.name` |
+| `{}` | rejected |
+| arbitrary JSON | rejected |
+| real Wazuh alert | accepted, full pipeline |
+| `full_alert` wrapper | accepted, full pipeline |
+
 The end-to-end pipeline was then validated on real hardware: alert → authenticated webhook → sanitization → deduplication → dual threat intel → local LLM → parsed verdict → Postgres. Every stage confirmed against stored data, not assumed.
 
 ---
 
 ## The lesson
 
-The five most serious defects were all **silent**. Nothing crashed. The workflow reported success while producing a threat score that ignored half its intelligence sources, no report at all on two of three operating systems, and an AI verdict describing an attack that never happened.
+The six most serious defects were all **silent**. Nothing crashed. The workflow reported success while producing a threat score that ignored half its intelligence sources, no report at all on two of three operating systems, an AI verdict describing an attack that never happened — and, when handed a health-check ping, a complete incident report about a threat that did not exist.
+
+That last one is the one worth sitting with. The pipeline did not fail on empty input. It filled the gap.
 
 A test harness and real alerts found them. Reading the code did not.

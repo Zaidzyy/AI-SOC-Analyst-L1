@@ -43,7 +43,7 @@ That last step is what turns the false-positive rate into a measurement instead 
 | **24%** | false-positive rate — 51 confirmed by a human, not estimated |
 | **1m 50s** | alert → written report (two local LLM passes) |
 | **90.5/100** | combined threat score on the SSH brute-force sample → `CRITICAL` |
-| **15** | documented fixes — **5 found only by running it** |
+| **16** | documented fixes — **6 found only by running it** |
 | **5/5** | crafted injection payloads blocked |
 | **0** | bytes leaving the network |
 
@@ -99,7 +99,7 @@ The model's severity **cannot override** the computed threat score. When threat 
 
 | Stage | What happens |
 |---|---|
-| **Trigger** | Webhook, authenticated with a shared header. Wazuh POSTs alerts at level ≥ 12 |
+| **Trigger** | Webhook, authenticated with a shared header. Wazuh POSTs alerts at level ≥ 12. Payloads that aren't Wazuh alerts are rejected before any node runs |
 | **Harden** | IPv4/IPv6 validation, shell-metacharacter stripping, log paths constrained to an allowlist |
 | **Deduplicate** | Same IP + rule + agent inside a configurable window is counted and dropped |
 | **Detect OS** | Seven alert fields checked in priority order — agent, decoder, program name, log content, rule groups, syscheck path, location |
@@ -124,9 +124,9 @@ Ninety nodes, one alert, 47.8 seconds end to end. Green edges are the path this 
 
 ---
 
-## Five bugs that were invisible until I fired real alerts
+## Six bugs that were invisible until I ran it
 
-Static review found ten problems. Running the pipeline against real alerts found five more — and **every one of those five failed silently.** Wrong numbers or a missing report, never a crash. The workflow reported success the entire time.
+Static review found ten problems. Running the pipeline found six more — and **every one of those six failed silently.** Wrong numbers, a missing report, or a report about nothing. Never a crash. The workflow reported success the entire time.
 
 | What was wrong | Why it was invisible | Before → after |
 |---|---|---|
@@ -135,8 +135,11 @@ Static review found ten problems. Running the pipeline against real alerts found
 | **Reports failed on every Windows and macOS alert** | The report prompt referenced a Linux-only node 12 times. Multi-OS support was real for log *collection*, never for report *generation*. | `node not executed` → full report |
 | **Sanitization was decorative** | Validated values were computed and then never used — the raw alert field reached the shell instead. | injectable → **5/5 blocked** |
 | **The model invented the attack type** | It called a crypto-miner detection and a Windows valid-account logon both "SSH brute force", with fabricated MITRE IDs (`T1208` isn't a real technique). | `T1208 ✗` → `T1078 ✓` |
+| **Any JSON produced a confident incident report** | A one-line health check — `{"test":"ping"}` — ran the full pipeline and returned a written report about a malware infection. The model read empty fields and wrote a narrative around them. | fabricated incident → **rejected at node 1** |
 
-The full audit trail — all 15 fixes, what each broke, and how it was verified — is in [`CHANGELOG.md`](CHANGELOG.md).
+The last one is the one I'd flag in a review: an authenticated-but-malformed POST could **manufacture incidents**, and a language model treated missing data as evidence. Both normalization nodes now verify the payload is a Wazuh alert before anything else runs.
+
+The full audit trail — all 16 fixes, what each broke, and how it was verified — is in [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
@@ -179,7 +182,7 @@ One deliberate trade-off worth stating: because delivery and database writes con
 │   └── email-templates/   3 drop-in HTML report designs
 ├── SETUP-GUIDE.md         step-by-step, ~30 min to live
 ├── CONFIGURATION.md       every setting explained
-├── CHANGELOG.md           all 15 fixes and how each was verified
+├── CHANGELOG.md           all 16 fixes and how each was verified
 └── screenshots/
 ```
 

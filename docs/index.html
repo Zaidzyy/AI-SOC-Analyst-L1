@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AI SOC Analyst L1 — Every alert investigated before you open the console.</title>
-<meta name="description" content="Wazuh alerts validated, deduplicated, enriched against two threat-intel sources, investigated over SSH and written up by a local LLM — with a human confirming every verdict. 15 documented fixes, 5 found only by running it.">
+<meta name="description" content="Wazuh alerts validated, deduplicated, enriched against two threat-intel sources, investigated over SSH and written up by a local LLM — with a human confirming every verdict. 16 documented fixes, 6 found only by running it.">
 <meta property="og:title" content="AI SOC Analyst L1 — Autonomous tier-one operations">
 <meta property="og:description" content="A local-first SOC pipeline that triages Wazuh alerts end to end. Nothing leaves the network.">
 <meta property="og:type" content="website">
@@ -211,8 +211,8 @@ body.anim .ch.show .feed{opacity:1;transform:none}
     <div class="bgl b-star"></div><div class="vig"></div>
     <div class="in">
       <span class="eyebrow">03 // measured, not claimed</span>
-      <h3>Five bugs were invisible until I fired real alerts.</h3>
-      <p class="l">Every one failed <b>silently</b> — wrong numbers or a missing report, never a crash. The pipeline reported success throughout.</p>
+      <h3>Six bugs were invisible until I ran it.</h3>
+      <p class="l">Every one failed <b>silently</b> — wrong numbers, a missing report, or a report about nothing. Never a crash. The pipeline reported success throughout.</p>
       <div id="bugs"></div>
     </div>
   </section>
@@ -251,7 +251,7 @@ body.anim .ch.show .feed{opacity:1;transform:none}
         <a class="b1" href="dashboard.html">Open the dashboard →</a>
         <a class="b2" href="https://github.com/Zaidzyy/AI-SOC-Analyst-L1" target="_blank" rel="noopener">View on GitHub ↗</a>
       </div>
-      <p class="mono" style="font-size:9.5px;color:#46566a;margin-top:28px">90 nodes · llama3.1:8b · local inference · 15 fixes documented · built by Zaid</p>
+      <p class="mono" style="font-size:9.5px;color:#46566a;margin-top:28px">90 nodes · llama3.1:8b · local inference · 16 fixes documented · built by Zaid</p>
     </div>
   </section>
 
@@ -356,7 +356,8 @@ window.SOC_CONFIG = {
     ["Correct score computed, then discarded",   "The scoring node ran twice; the consumer took the wrong one", "0 LOW", "50 HIGH"],
     ["Reports failed on Windows and macOS",      "The report referenced a Linux-only node twelve times", "no report", "full report"],
     ["Sanitization was decorative",              "Validated values were computed, then never used", "injectable", "5/5 blocked"],
-    ["The AI invented the attack type",          "Called a crypto-miner “SSH brute force”, faked MITRE IDs", "T1208 ✗", "T1078 ✓"]
+    ["The AI invented the attack type",          "Called a crypto-miner “SSH brute force”, faked MITRE IDs", "T1208 ✗", "T1078 ✓"],
+    ["Any JSON produced a confident report",      "A health-check ping returned a written report about a threat that did not exist", "fabricated", "rejected"]
   ];
   document.getElementById("bugs").innerHTML = BUGS.map(([t, d, was, now], i) =>
     `<div class="bug" style="transition-delay:${0.06 + i * 0.07}s">

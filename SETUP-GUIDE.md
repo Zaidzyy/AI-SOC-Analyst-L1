@@ -171,7 +171,17 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 | `404` | workflow not active, or wrong webhook path |
 | timeout | firewall or wrong host — n8n is not reachable from the Wazuh box |
 
-Run it once **with** the header and once **without**. The version without it must fail. If an unauthenticated POST succeeds, the credential isn't attached to the node.
+This checks **reachability and the token only**. `{"test":"ping"}` is not a Wazuh
+alert, so the run itself stops at the first node — expected, and visible in
+**n8n → Executions** as a rejection naming the missing fields. A `200` here means
+the header was accepted, not that the pipeline ran.
+
+Run it once **with** the header and once **without**. The version without it must
+fail at the webhook. If an unauthenticated POST gets past the webhook, the
+credential isn't attached to the node.
+
+To exercise the pipeline itself, use a real alert shape — see **Test C** in §8, or
+`samples/fire-alerts.sh`.
 
 ---
 
@@ -313,6 +323,65 @@ The three shipped samples exercise different paths:
 | `suspicious-login.json` | 12 | Windows → `Execute a command` → `Get-WinEvent` |
 
 Use **Executions** to inspect each step if anything is empty.
+
+---
+
+### Test C — a real Wazuh alert (end to end)
+
+Tests A and B use curl, which proves the workflow. This proves the **integration** —
+that Wazuh itself reaches n8n with the right header.
+
+On the Wazuh manager, generate failed logins:
+
+```bash
+for i in $(seq 1 6); do ssh -o StrictHostKeyChecking=no -o BatchMode=yes invaliduser@localhost; done
+```
+
+Then check **n8n → Executions** for a new run within ~30 seconds.
+
+**If nothing appears**, work down this list — each step rules out one layer:
+
+```bash
+# 1. is the alert rule even firing?
+sudo tail -f /var/ossec/logs/alerts/alerts.json | grep -i sshd
+
+# 2. did the integration try to send it?
+sudo tail -30 /var/ossec/logs/ossec.log | grep -i integrat
+
+# 3. can this box reach n8n at all, with the header?
+curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+  http://YOUR-N8N:5678/webhook/reportlvl12 \
+  -H "Content-Type: application/json" \
+  -H "X-SOC-Token: YOUR_TOKEN" \
+  --data @samples/test-alerts/ssh-bruteforce.json
+```
+
+| Where it fails | Cause |
+|---|---|
+| No alert in `alerts.json` | Wazuh isn't detecting it — rule or agent problem, not integration |
+| Alert present, nothing in `ossec.log` | `<integration>` block missing or `<level>` too high |
+| `ossec.log` says `File not found inside 'integrations'` | `<name>` doesn't match the script filename |
+| Script runs but n8n sees nothing | Wrong host IP (don't use `localhost` across machines), firewall, or `python3-requests` missing |
+| n8n returns 401 | Token mismatch between the script and the n8n credential |
+
+> **Check your `<level>`.** If `ossec.conf` says `<level>4</level>`, Wazuh forwards
+> almost everything — most of it routine noise with no source IP and nothing to
+> triage. This workflow is built for level 12+. A low threshold burns your
+> VirusTotal quota and fills the dashboard with non-incidents.
+
+> **The webhook only accepts Wazuh alert JSON.** A payload without `rule.id`,
+> `rule.level` and `agent.name` is rejected at the first node. This is deliberate —
+> see the note below.
+
+#### Why arbitrary JSON is rejected
+
+An early version accepted any body. Sending `{"test":"ping"}` produced a complete,
+confident incident report describing a threat that did not exist — the model read
+empty fields and wrote a narrative around them.
+
+An authenticated-but-malformed POST could therefore manufacture fake incidents.
+The normalization nodes now verify the payload is actually a Wazuh alert and stop
+if it isn't, rather than letting a language model interpret missing data as evidence.
 
 ---
 
