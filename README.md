@@ -19,8 +19,6 @@ https://github.com/user-attachments/assets/7dd453ad-0351-4b84-89d0-a667df5d0055
 
 ---
 
-![Workflow](screenshots/image.png)
-
 ## Why this exists
 
 Wazuh tells you *something happened*. It does not tell you what it means, whether it matters, or what to do next. So a tier-1 analyst does the same six things on every alert: look up the source IP, SSH into the host, tail the logs, work out whether it's real, write it up, paste it in a channel.
@@ -52,6 +50,10 @@ That last step is what turns the false-positive rate into a measurement instead 
 | **16** | documented fixes — **5 bugs found only by running it** |
 | **5/5** | crafted injection payloads blocked |
 | **0** | bytes leaving the network |
+
+---
+## The workflow
+![Workflow](screenshots/image.png)
 
 ---
 
