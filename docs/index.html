@@ -130,6 +130,11 @@ body.anim .ch.show .g4{opacity:1;transform:none}
 
 .feed{border:1px solid var(--ln2);border-radius:11px;overflow:hidden;background:rgba(10,13,17,.88);
 }
+.reel{border:1px solid var(--ln2);border-radius:12px;overflow:hidden;background:#000;
+  box-shadow:0 18px 60px rgba(0,0,0,.55);line-height:0}
+.reel video{display:block;width:100%;max-height:60vh;object-fit:contain;background:#000}
+body.anim .reel{opacity:0;transform:translateY(14px);transition:opacity .65s .12s,transform .65s .12s}
+body.anim .ch.show .reel{opacity:1;transform:none}
 body.anim .feed{opacity:0;transform:translateY(12px);transition:opacity .65s .25s,transform .65s .25s}
 body.anim .ch.show .feed{opacity:1;transform:none}
 .fh{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-bottom:1px solid var(--ln);
@@ -158,7 +163,8 @@ body.anim .ch.show .feed{opacity:1;transform:none}
   </a>
   <div class="navr">
     <a class="navlink" href="#" onclick="go(1);return false">pipeline</a>
-    <a class="navlink" href="#" onclick="go(2);return false">evidence</a>
+    <a class="navlink" href="#" onclick="go(2);return false">in motion</a>
+    <a class="navlink" href="#" onclick="go(3);return false">evidence</a>
     <a class="navlink" href="dashboard.html">dashboard</a>
     <a class="navgh" href="https://github.com/Zaidzyy/AI-SOC-Analyst-L1" target="_blank" rel="noopener">
       <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
@@ -184,7 +190,7 @@ body.anim .ch.show .feed{opacity:1;transform:none}
       <p class="l">A level-12 Wazuh alert at 2 a.m. needs the same six things every time: look up the IP, SSH in, tail the logs, decide if it's real, write it up, tell someone. <b>That loop is the whole job of this system.</b></p>
       <div class="cta">
         <a class="b1" href="dashboard.html">Open the dashboard →</a>
-        <a class="b2" href="#ev" onclick="go(2);return false">See what it found ↓</a>
+        <a class="b2" href="#ev" onclick="go(3);return false">See what it found ↓</a>
         <a class="b2" href="https://github.com/Zaidzyy/AI-SOC-Analyst-L1" target="_blank" rel="noopener">View on GitHub ↗</a>
       </div>
       <div class="kpi">
@@ -207,21 +213,38 @@ body.anim .ch.show .feed{opacity:1;transform:none}
   </section>
 
   <!-- 03 -->
-  <section class="ch" id="ev" data-n="chapter 03 — the evidence">
+  <section class="ch" data-n="chapter 03 — in motion">
+    <div class="bgl b-glob"></div><div class="vig"></div>
+    <div class="in">
+      <span class="eyebrow">03 // in motion</span>
+      <h3>One alert, webhook to verdict.</h3>
+      <p class="l">Twenty-five seconds. A real execution, the report it produced, and the numbers it recorded — nothing reconstructed.</p>
+      <div class="reel">
+        <video controls preload="auto" playsinline poster="assets/socanalyst-poster.jpg">
+          <source src="assets/socanalyst.mp4" type="video/mp4">
+          Your browser can't play this video —
+          <a href="assets/socanalyst.mp4">download it instead</a>.
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="ch" id="ev" data-n="chapter 04 — the evidence">
     <div class="bgl b-star"></div><div class="vig"></div>
     <div class="in">
-      <span class="eyebrow">03 // measured, not claimed</span>
+      <span class="eyebrow">04 // measured, not claimed</span>
       <h3>Five bugs were invisible until I ran it.</h3>
       <p class="l">Every one failed <b>silently</b> — wrong numbers, a missing report, or a report about nothing. Never a crash. The pipeline reported success throughout.</p>
       <div id="bugs"></div>
     </div>
   </section>
 
-  <!-- 04 -->
-  <section class="ch" data-n="chapter 04 — safeguards">
+  <!-- 05 -->
+  <section class="ch" data-n="chapter 05 — safeguards">
     <div class="bgl b-glob"></div><div class="vig"></div>
     <div class="in">
-      <span class="eyebrow">04 // safeguards</span>
+      <span class="eyebrow">05 // safeguards</span>
       <h3>The AI writes the report. It does not decide what happens.</h3>
       <p class="l">Blocking is deterministic and gated four ways. <b>All four must agree</b> before a single firewall rule is written.</p>
       <div class="gate4">
@@ -240,11 +263,11 @@ body.anim .ch.show .feed{opacity:1;transform:none}
     </div>
   </section>
 
-  <!-- 05 -->
-  <section class="ch" data-n="chapter 05 — local first">
+  <!-- 06 -->
+  <section class="ch" data-n="chapter 06 — local first">
     <div class="bgl b-wall"></div><div class="vig"></div>
     <div class="in" style="text-align:center;max-width:680px;margin:0 auto">
-      <span class="eyebrow">05 // local first</span>
+      <span class="eyebrow">06 // local first</span>
       <h3 style="max-width:none;margin-inline:auto">Nothing leaves your network.</h3>
       <p class="l" style="margin-inline:auto">Inference runs on a local Ollama model. Alert contents, log excerpts and hostnames never reach a cloud provider. The only outbound calls are the two threat-intel lookups you explicitly enable — and when either is unavailable the record reads <b>unknown</b>, never clean.</p>
       <div class="cta" style="justify-content:center">

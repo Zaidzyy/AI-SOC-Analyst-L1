@@ -3,3 +3,10 @@
 # into a smart quote that silently breaks string parsing.
 *.ps1 text eol=crlf working-tree-encoding=US-ASCII
 *.sh  text eol=lf
+
+# Never let line-ending normalisation touch binaries.
+*.mp4  binary
+*.webm binary
+*.jpg  binary
+*.png  binary
+*.svg  text
