@@ -4,7 +4,7 @@
 
 **Every level-12 alert investigated, enriched, written up and given a verdict — before an analyst opens the console.**
 
-[**Live site**](https://zaidzyy.github.io/AI-SOC-Analyst-L1/) · [**Live dashboard**](https://zaidzyy.github.io/AI-SOC-Analyst-L1/dashboard.html) · [**Blog**](https://bit.ly/4asozzA)
+[**Live site**](https://zaidzyy.github.io/AI-SOC-Analyst-L1/) · [**Live dashboard**](https://zaidzyy.github.io/AI-SOC-Analyst-L1/dashboard.html) · [**Blog**](https://medium.com/@thezaiduniverse/ai-soc-agent-autonomous-security-operations-engine-c8c7b87d6ce3?sk=848e706b391de6b3242380dc12c50e40)
 
 
 `Wazuh` · `n8n` · `Ollama` · `Postgres` · `Supabase` — 90 nodes, local inference, nothing leaves the network
